@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                             QGroupBox, QGridLayout)
 from PyQt6.QtCore import QTimer, Qt
 from PyQt6.QtGui import QIcon, QPixmap
-from pages.utils.paths import resource_path
+from utils.paths import resource_path
 
 class ObservationPage(QWidget):
     def __init__(self, switch_page):

@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
 from PyQt6.QtCore import Qt
-from pages.utils.paths import resource_path
+from utils.paths import resource_path
 
 class HomePage(QWidget):
     def __init__(self, switch_page):

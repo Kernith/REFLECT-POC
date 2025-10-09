@@ -3,7 +3,7 @@ from PyQt6.QtCore import Qt
 import pandas as pd
 import json
 from widgets.mpl_canvas import MplCanvas
-from pages.utils.paths import resource_path
+from utils.paths import resource_path
 
 class AnalysisPage(QWidget):
     def __init__(self, switch_page):
