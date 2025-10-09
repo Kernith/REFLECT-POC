@@ -19,8 +19,8 @@ class MainWindow(QMainWindow):
             self.stack.addWidget(page)
 
         self.setCentralWidget(self.stack)
-        self.setWindowTitle("Survey App")
-        self.resize(600, 400)
+        self.setWindowTitle("REFLECT App")
+        self.resize(1280, 720)
 
     def switch_page(self, index):
         self.stack.setCurrentIndex(index)

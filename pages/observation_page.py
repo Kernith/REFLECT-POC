@@ -79,7 +79,7 @@ class ObservationPage(QWidget):
             self.switch_page(0)
             return {}
 
-    def create_button_with_image(self, button_data, color, size=(80, 80)):
+    def create_button_with_image(self, button_data, color, size=(100, 100)):
         """Create a button with image and text"""
         btn = QPushButton()
         btn.setFixedSize(*size)

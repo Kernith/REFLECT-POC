@@ -7,8 +7,21 @@ class HomePage(QWidget):
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        title = QLabel("Generalized\nObservation and\nReflection\nPlatform\n")
-        title.setStyleSheet("font-size: 24px; font-weight: bold;")
+        title = QLabel()
+        title.setText("""
+        <b style="font-size:24px;">REFLECT</b>
+        <br>
+        <span style="font-size:18px;">
+        <b><span style="color:#007ACC;">R</span></b>esearch &amp;
+        <b><span style="color:#007ACC;">E</span></b>valuation
+        <b><span style="color:#007ACC;">F</span></b>ramework for
+        <br>
+        <b><span style="color:#007ACC;">L</span></b>earning,
+        <b><span style="color:#007ACC;">E</span></b>ngagement,
+        <b><span style="color:#007ACC;">C</span></b>ollaboration, and
+        <b><span style="color:#007ACC;">T</span></b>racking
+        </span>
+        """)
         layout.addWidget(title)
 
         btn_new = QPushButton("Start New Observation")
