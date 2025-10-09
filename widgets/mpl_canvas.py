@@ -1,12 +1,9 @@
+from matplotlib import use
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 # explicitly set the backend for PyInstaller
-matplotlib.use('Qt5Agg')
-
-# Force hidden imports for PyInstaller
-import _ctypes
-import pkg_resources.py2_warn
+use('Qt5Agg')
 
 class MplCanvas(FigureCanvas):
     def __init__(self):
