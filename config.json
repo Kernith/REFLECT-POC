@@ -1,0 +1,16 @@
+{
+    "observation_buttons": [
+        {
+            "label": ":)",
+            "text": "Positive"
+        },
+        {
+            "label": ":(", 
+            "text": "Negative"
+        },
+        {
+            "label": "?",
+            "text": "Uncertain"
+        }
+    ]
+}
