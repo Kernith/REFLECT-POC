@@ -6,17 +6,23 @@ from PyQt6.QtCore import QTimer, Qt
 from PyQt6.QtGui import QIcon, QPixmap
 from utils.paths import resource_path
 
-class ObservationPage(QWidget):
-    def __init__(self, switch_page):
+class ObservationIntervalPage(QWidget):
+    def __init__(self, switch_page, get_current_config):
         super().__init__()
         self.switch_page = switch_page
+        self.get_current_config = get_current_config
         self.start_time = None
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_timer)
         self.responses = []
         
+        # Track button states for toggle functionality
+        self.button_states = {}
+        self.interval_timer = QTimer()
+        self.interval_timer.timeout.connect(self.save_interval_data)
+        
         # Load button configuration
-        self.config = self.load_config()
+        self.load_config()
 
         # Main layout with three sections
         main_layout = QHBoxLayout()
@@ -44,7 +50,7 @@ class ObservationPage(QWidget):
         control_layout = QVBoxLayout()
         control_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        self.timer_label = QLabel("Timer: 0.0 s")
+        self.timer_label = QLabel("Timer: 0:00")
         self.timer_label.setStyleSheet("font-size: 18px;")
         control_layout.addWidget(self.timer_label)
         
@@ -71,21 +77,34 @@ class ObservationPage(QWidget):
         self.setLayout(final_layout)
 
     def load_config(self):
-        """Load button configuration from config.json"""
+        """Load button configuration from the global config"""
         try:
-            config_path = resource_path("config.json")
-            with open(config_path, "r") as f:
-                return json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError, KeyError):
+            self.config = self.get_current_config()
+            # Get timer interval from config
+            self.timer_interval = self.config.get("timer_interval", 120) * 1000  # Convert to milliseconds
+        except Exception as e:
             QMessageBox.critical(self, "Error", "Could not load configuration.")
             self.switch_page(0)
-            return {}
+            self.config = {
+                "student_actions": [],
+                "instructor_actions": [],
+                "engagement_images": [],
+                "colors": {
+                    "student": "#F46715",
+                    "engagement": "#4169E1", 
+                    "instructor": "#0C8346",
+                    "comments": "#808080",
+                    "carmine": "#931621"
+                }
+            }
+            self.timer_interval = 120000  # Default 2 minutes
 
-    def create_button_with_image(self, button_data, color, size=(100, 100)):
+    def create_button_with_image(self, button_data, color, size=(100, 100), category="", is_toggle=True):
         """Create a button with image and text"""
         btn = QPushButton()
         btn.setFixedSize(*size)
         btn.setToolTip(button_data.get("text", ""))
+        btn.setCheckable(is_toggle)  # Make it a toggle button
         
         # Set button text
         btn.setText(button_data["label"])
@@ -107,7 +126,27 @@ class ObservationPage(QWidget):
                 print(f"Could not load image {full_image_path}: {e}")
         
         # Apply color to button background
-        btn.setStyleSheet(f"QPushButton {{ background-color: {color}; color: white; font-weight: bold; }}")
+        if is_toggle:
+            btn.setStyleSheet(f"""
+                QPushButton {{ 
+                    background-color: {color}; 
+                    color: white; 
+                    font-weight: bold; 
+                    border: 2px solid {color};
+                }}
+                QPushButton:checked {{ 
+                    background-color: #FFD700; 
+                    color: black; 
+                    border: 2px solid #FFD700;
+                }}
+            """)
+        else:
+            btn.setStyleSheet(f"QPushButton {{ background-color: {color}; color: white; font-weight: bold; }}")
+        
+        # Connect toggle functionality
+        if is_toggle:
+            btn.toggled.connect(lambda checked, label=button_data["label"], cat=category: 
+                              self.toggle_button(cat, label, checked))
         
         return btn
 
@@ -122,9 +161,7 @@ class ObservationPage(QWidget):
         student_color = self.config.get("colors", {}).get("student", "#FFA500")
         
         for i, button_data in enumerate(student_buttons):
-            btn = self.create_button_with_image(button_data, student_color)
-            btn.clicked.connect(lambda _, label=button_data["label"]: 
-                              self.record_response("Student", label))
+            btn = self.create_button_with_image(button_data, student_color, category="Student")
             
             # Calculate row and column for 4-column grid
             row = i // 4
@@ -147,23 +184,19 @@ class ObservationPage(QWidget):
         engagement_layout = QHBoxLayout()
         engagement_layout.setContentsMargins(10, 20, 10, 10)
         
-        engagement_buttons = [
-            ("Low", "Low engagement"),
-            ("Medium", "Medium engagement"), 
-            ("High", "High engagement")
-        ]
-        
+        # Load engagement buttons from config
+        engagement_buttons = self.config.get("engagement_images", [])
         engagement_color = self.config.get("colors", {}).get("engagement", "#4169E1")
-        engagement_images = self.config.get("engagement_images", {})
         
-        for label, tooltip in engagement_buttons:
+        for button_data in engagement_buttons:
             btn = QPushButton()
             btn.setFixedSize(80, 40)
-            btn.setText(label)
-            btn.setToolTip(tooltip)
+            btn.setText(button_data["label"])
+            btn.setToolTip(button_data["text"])
+            btn.setCheckable(True)  # Make it a toggle button
             
             # Try to load engagement image
-            image_path = engagement_images.get(label, "")
+            image_path = button_data.get("image", "")
             if image_path:
                 try:
                     # Use resource_path to make the path PyInstaller-safe
@@ -177,10 +210,24 @@ class ObservationPage(QWidget):
                 except Exception as e:
                     print(f"Could not load engagement image {full_image_path}: {e}")
             
-            # Apply color to button background
-            btn.setStyleSheet(f"QPushButton {{ background-color: {engagement_color}; color: white; font-weight: bold; }}")
-            btn.clicked.connect(lambda _, label=label: 
-                              self.record_response("Engagement", label))
+            # Apply color to button background with toggle styling
+            btn.setStyleSheet(f"""
+                QPushButton {{ 
+                    background-color: {engagement_color}; 
+                    color: white; 
+                    font-weight: bold; 
+                    border: 2px solid {engagement_color};
+                }}
+                QPushButton:checked {{ 
+                    background-color: #FFD700; 
+                    color: black; 
+                    border: 2px solid #FFD700;
+                }}
+            """)
+            
+            # Connect toggle functionality
+            btn.toggled.connect(lambda checked, label=button_data["label"]: 
+                              self.toggle_button("Engagement", label, checked))
             engagement_layout.addWidget(btn)
         
         engagement_group.setLayout(engagement_layout)
@@ -221,9 +268,7 @@ class ObservationPage(QWidget):
         instructor_color = self.config.get("colors", {}).get("instructor", "#32CD32")
         
         for i, button_data in enumerate(instructor_buttons):
-            btn = self.create_button_with_image(button_data, instructor_color)
-            btn.clicked.connect(lambda _, label=button_data["label"]: 
-                              self.record_response("Instructor", label))
+            btn = self.create_button_with_image(button_data, instructor_color, category="Instructor")
             
             # Calculate row and column for 4-column grid
             row = i // 4
@@ -232,6 +277,19 @@ class ObservationPage(QWidget):
         
         group.setLayout(layout)
         return group
+
+    def toggle_button(self, category, label, checked):
+        """Handle button toggle state"""
+        if not self.start_time:
+            return
+        
+        key = f"{category}_{label}"
+        if checked:
+            self.button_states[key] = True
+            print(f"Toggled ON: {category} - {label}")
+        else:
+            self.button_states[key] = False
+            print(f"Toggled OFF: {category} - {label}")
 
     def save_comment(self):
         """Save the current comment and clear the field"""
@@ -243,12 +301,43 @@ class ObservationPage(QWidget):
     def start_observation(self):
         self.start_time = time.time()
         self.responses = []
+        self.button_states = {}
         self.timer.start(100)
+        self.interval_timer.start(self.timer_interval)  # Start interval timer
 
     def update_timer(self):
         if self.start_time:
             elapsed = time.time() - self.start_time
-            self.timer_label.setText(f"Timer: {elapsed:.1f} s")
+            minutes = int(elapsed // 60)
+            seconds = int(elapsed % 60)
+            self.timer_label.setText(f"Timer: {minutes}:{seconds:02d}")
+
+    def save_interval_data(self):
+        """Save data for all toggled buttons and reset them"""
+        if not self.start_time:
+            return
+        
+        current_time = time.time() - self.start_time
+        
+        # Save data for all toggled buttons
+        for key, is_toggled in self.button_states.items():
+            if is_toggled:
+                category, label = key.split("_", 1)
+                self.responses.append((current_time, category, label))
+                print(f"Interval save: {category} - {label} at {current_time:.1f}s")
+        
+        # Reset all buttons
+        self.reset_all_buttons()
+        
+        # Clear button states
+        self.button_states = {}
+
+    def reset_all_buttons(self):
+        """Reset all toggle buttons to unchecked state"""
+        # Find all toggle buttons and uncheck them
+        for widget in self.findChildren(QPushButton):
+            if widget.isCheckable():
+                widget.setChecked(False)
 
     def record_response(self, category, response):
         if not self.start_time:
@@ -259,6 +348,16 @@ class ObservationPage(QWidget):
 
     def stop_observation(self):
         self.timer.stop()
+        self.interval_timer.stop()
+        
+        # Save any remaining toggled buttons before stopping
+        if self.start_time:
+            current_time = time.time() - self.start_time
+            for key, is_toggled in self.button_states.items():
+                if is_toggled:
+                    category, label = key.split("_", 1)
+                    self.responses.append((current_time, category, label))
+        
         if not self.responses:
             QMessageBox.information(self, "No data", "No observations recorded.")
             return
