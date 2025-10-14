@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
         self.stack = QStackedWidget()
         self.app_state = AppState()
         
-        self.setFixedSize(int(1532/1.25), int(659/1.25))
+        self.resize(int(1532/1.25), int(659/1.25))
 
         # Define page classes in order
         self.page_classes = [

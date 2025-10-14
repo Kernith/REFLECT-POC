@@ -120,7 +120,7 @@ class ObservationTimepointPage(QWidget):
                 print(f"Could not load image {full_image_path}: {e}")
         
         # Apply color to button background
-        btn.setStyleSheet(f"QPushButton {{ background-color: {color}; color: white; font-weight: bold; }}")
+        btn.setStyleSheet(f"QPushButton {{ background-color: {color}; color: white; font-weight: bold; overflow-wrap: break-word; }}")
         
         return btn
 

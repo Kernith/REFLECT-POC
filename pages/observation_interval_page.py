@@ -1,4 +1,4 @@
-import time, csv, json
+import time, csv
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
                             QLabel, QFileDialog, QMessageBox, QTextEdit, 
                             QGroupBox, QGridLayout)
@@ -67,7 +67,7 @@ class ObservationIntervalPage(QWidget):
         button_row.addWidget(btn_stop)
         
         btn_back = QPushButton("Back to Home")
-        btn_back.clicked.connect(lambda: self.switch_page(0))
+        btn_back.clicked.connect(self.handle_back_to_home)
         button_row.addWidget(btn_back)
         
         control_layout.addLayout(button_row)
@@ -144,7 +144,7 @@ class ObservationIntervalPage(QWidget):
                 }}
             """)
         else:
-            btn.setStyleSheet(f"QPushButton {{ background-color: {color}; color: white; font-weight: bold; }}")
+            btn.setStyleSheet(f"QPushButton {{ background-color: {color}; color: white; font-weight: bold; overflow-wrap: break-word; width: 15ch;}}")
         
         # Connect toggle functionality
         if is_toggle:
@@ -191,6 +191,9 @@ class ObservationIntervalPage(QWidget):
         engagement_buttons = self.config.get("engagement_images", [])
         engagement_color = self.config.get("colors", {}).get("engagement", "#4169E1")
         
+        # Store engagement buttons for radio button functionality
+        self.engagement_buttons = []
+        
         for button_data in engagement_buttons:
             btn = QPushButton()
             btn.setFixedSize(80, 40)
@@ -228,9 +231,12 @@ class ObservationIntervalPage(QWidget):
                 }}
             """)
             
-            # Connect toggle functionality
-            btn.toggled.connect(lambda checked, label=button_data["label"]: 
-                              self.toggle_button("Engagement", label, checked))
+            # Connect toggle functionality with radio button behavior
+            btn.toggled.connect(lambda checked, label=button_data["label"], btn_ref=btn: 
+                              self.toggle_engagement_button(label, checked, btn_ref))
+            
+            # Store button reference for radio button functionality
+            self.engagement_buttons.append(btn)
             engagement_layout.addWidget(btn)
         
         engagement_group.setLayout(engagement_layout)
@@ -293,6 +299,27 @@ class ObservationIntervalPage(QWidget):
         else:
             self.button_states[key] = False
             print(f"Toggled OFF: {category} - {label}")
+
+    def toggle_engagement_button(self, label, checked, clicked_button):
+        """Handle engagement button toggle with radio button behavior"""
+        if not self.start_time:
+            return
+        
+        if checked:
+            # Uncheck all other engagement buttons
+            for btn in self.engagement_buttons:
+                if btn != clicked_button and btn.isChecked():
+                    btn.setChecked(False)
+            
+            # Update button states
+            self.button_states[f"Engagement_{label}"] = True
+            print(f"Engagement selected: {label}")
+        else:
+            # If this button was unchecked, remove it from states
+            key = f"Engagement_{label}"
+            if key in self.button_states:
+                del self.button_states[key]
+            print(f"Engagement deselected: {label}")
 
     def save_comment(self):
         """Save the current comment and clear the field"""
@@ -375,3 +402,24 @@ class ObservationIntervalPage(QWidget):
                 writer.writerows(self.responses)
             QMessageBox.information(self, "Saved", f"Observation data saved to:\n{path}")
         self.switch_page(0)
+
+    def handle_back_to_home(self):
+        """Handle back to home button with confirmation if timer is running"""
+        if self.start_time:
+            # Timer is running, show confirmation dialog
+            reply = QMessageBox.question(
+                self, 
+                "Confirm Navigation", 
+                "An observation is currently running. Are you sure you want to go back to home? This will stop the current observation.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+            if reply == QMessageBox.StandardButton.Yes:
+                # Stop the observation and go back
+                self.timer.stop()
+                self.interval_timer.stop()
+                self.start_time = None
+                self.switch_page(0)
+        else:
+            # Timer is not running, go back directly
+            self.switch_page(0)
