@@ -1,18 +1,16 @@
-import time
 from PyQt6.QtWidgets import QPushButton, QMessageBox
 from PyQt6.QtCore import QTimer
 from pages.base_observation_page import BaseObservationPage
-from pages.button_behaviors import ToggleButtonBehavior
+from utils.button_behaviors import ToggleButtonBehavior
+from utils.util_functions import get_current_time
 
 class ObservationIntervalPage(BaseObservationPage):
     def __init__(self, switch_page, app_state):
+        """run some additional init before running base init"""
         # Track button states for toggle functionality
         self.button_states = {}
         self.interval_timer = QTimer()
         self.interval_timer.timeout.connect(self.save_interval_data)
-        
-        # Get timer interval from config
-        self.timer_interval = 120000  # Default 2 minutes
         
         super().__init__(switch_page, app_state)
 
@@ -23,9 +21,8 @@ class ObservationIntervalPage(BaseObservationPage):
     def load_config(self):
         """Override to load timer interval from config"""
         super().load_config()
-        # Get timer interval from config
-        self.timer_interval = self.config.get("timer_interval", 120) * 1000  # Convert to milliseconds
-
+        # Get timer interval from config (convert to milliseconds, default 2 minutes)
+        self.timer_interval = self.config.get("timer_interval", 120) * 1000
 
     def toggle_button(self, category, label, checked):
         """Handle button toggle state"""
@@ -65,7 +62,7 @@ class ObservationIntervalPage(BaseObservationPage):
         """Save the current comment and clear the field"""
         comment = self.comment_field.toPlainText().strip()
         if comment:
-            self.record_response("Comment", comment)
+            self.record_response("Comment", comment)  # The value will be set automatically in record_response
             self.comment_field.clear()
 
     def start_observation(self):
@@ -79,14 +76,21 @@ class ObservationIntervalPage(BaseObservationPage):
         if not self.start_time:
             return
         
-        current_time = time.time() - self.start_time
+        current_time = get_current_time(self)
         
         # Save data for all toggled buttons
         for key, is_toggled in self.button_states.items():
             if is_toggled:
                 category, label = key.split("_", 1)
-                self.responses.append((current_time, category, label))
-                print(f"Interval save: {category} - {label} at {current_time:.1f}s")
+                # Determine value based on category
+                if category == "Engagement":
+                    engagement_values = {"Low": 1, "Medium": 2, "High": 3}
+                    value = engagement_values.get(label, 1)
+                else:  # Student and Instructor categories
+                    value = 1
+                
+                self.responses.append((current_time, category, label, value))
+                print(f"Interval save: {category} - {label} (value: {value}) at {current_time:.1f}s")
         
         # Reset all buttons
         self.reset_all_buttons()
@@ -108,7 +112,7 @@ class ObservationIntervalPage(BaseObservationPage):
         
         # Save any remaining toggled buttons before stopping
         if self.start_time:
-            current_time = time.time() - self.start_time
+            current_time = get_current_time(self)
             # Calculate next multiple of timer_interval (convert from ms to seconds)
             timer_interval_seconds = self.timer_interval / 1000
             if current_time % timer_interval_seconds == 0:
@@ -119,7 +123,13 @@ class ObservationIntervalPage(BaseObservationPage):
             for key, is_toggled in self.button_states.items():
                 if is_toggled:
                     category, label = key.split("_", 1)
-                    self.responses.append((adjusted_time, category, label))
+                    # Determine value based on category
+                    if category == "Engagement":
+                        engagement_values = {"Low": 1, "Medium": 2, "High": 3}
+                        value = engagement_values.get(label, 1)
+                    else:  # Student and Instructor categories
+                        value = 1
+                    self.responses.append((adjusted_time, category, label, value))
         
         # Call parent stop_observation to handle the rest
         super().stop_observation()

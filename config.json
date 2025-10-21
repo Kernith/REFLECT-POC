@@ -10,6 +10,7 @@
         {
             "name": "COPUS",
             "description": "Classroom Observation Protocol for Undergraduate Science Courses",
+            "instructions": "instruction text",
             "timer_method": "interval",
             "timer_interval": 120,
             "student_actions": [
@@ -167,6 +168,7 @@
         {
             "name": "COPUS (timepoint)",
             "description": "Classroom Observation Protocol for Undergraduate Science Courses",
+            "instructions": "instruction text",
             "timer_method": "timepoint",
             "timer_interval": 0,
             "student_actions": [
@@ -324,18 +326,14 @@
         {
             "name": "COPUS (test)",
             "description": "Classroom Observation Protocol for Undergraduate Science Courses",
+            "instructions": "instruction text",
             "timer_method": "interval",
-            "timer_interval": 15,
+            "timer_interval": 120,
             "student_actions": [
                 {
                     "label": "Listening",
                     "text": "Listening to instructor / taking notes",
                     "image": "images/student_listening.png"
-                },
-                {
-                    "label": "Thinking/Problem\nSolving",
-                    "text": "Individual thinking / problem solving (when explicitly prompted)",
-                    "image": "images/student_talking.png"
                 },
                 {
                     "label": "Answering\nQuestion",
@@ -348,6 +346,11 @@
                     "image": "images/student_question.png"
                 },
                 {
+                    "label": "Waiting",
+                    "text": "Waiting (e.g., instructor late or fixing AV problems)",
+                    "image": "images/student_waiting.png"
+                },
+                {
                     "label": "Predicting\nOutcome",
                     "text": "Making a prediction about an outcome of a demo or experiment",
                     "image": "images/student_working.png"
@@ -356,16 +359,6 @@
                     "label": "Discussing\nQuestion",
                     "text": "Discussing clicker question (CQ) in groups of 2 or more students",
                     "image": "images/student_group.png"
-                },
-                {
-                    "label": "Group\nWorksheet",
-                    "text": "Working on worksheet in groups",
-                    "image": "images/student_workgroup.png"
-                },
-                {
-                    "label": "Group\nActivities",
-                    "text": "Other group activities (e.g., responding to instructor question)",
-                    "image": "images/student_othergroup.png"
                 },
                 {
                     "label": "Class\nDiscussion",
@@ -378,14 +371,24 @@
                     "image": "images/student_speaking.png"
                 },
                 {
+                    "label": "Thinking/Problem\nSolving",
+                    "text": "Individual thinking / problem solving (when explicitly prompted)",
+                    "image": "images/student_talking.png"
+                },
+                {
+                    "label": "Group\nWorksheet",
+                    "text": "Working on worksheet in groups",
+                    "image": "images/student_workgroup.png"
+                },
+                {
+                    "label": "Group\nActivities",
+                    "text": "Other group activities (e.g., responding to instructor question)",
+                    "image": "images/student_othergroup.png"
+                },
+                {
                     "label": "Test/Quiz",
                     "text": "Taking a test or quiz",
                     "image": "images/student_tech.png"
-                },
-                {
-                    "label": "Waiting",
-                    "text": "Waiting (e.g., instructor late or fixing AV problems)",
-                    "image": "images/student_waiting.png"
                 }
             ],
             "instructor_actions": [
@@ -405,6 +408,11 @@
                     "image": "images/instructor_questions.png"
                 },
                 {
+                    "label": "Answering\nQuestion",
+                    "text": "Listening to and answering student questions with entire class listening",
+                    "image": "images/instructor_answering.png"
+                },
+                {
                     "label": "Posing\nQuestion",
                     "text": "Posing non-rhetorical, non-clicker question",
                     "image": "images/instructor_circulating.png"
@@ -413,11 +421,6 @@
                     "label": "Asking\nClicker\nQuestion",
                     "text": "Asking a clicker question (mark entire time clicker question used)",
                     "image": "images/instructor_assistance.png"
-                },
-                {
-                    "label": "Answering\nQuestion",
-                    "text": "Listening to and answering student questions with entire class listening",
-                    "image": "images/instructor_answering.png"
                 },
                 {
                     "label": "Following up",
