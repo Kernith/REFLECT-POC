@@ -1,11 +1,11 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QStackedWidget
 from pages.home_page import HomePage
-from pages.observation_interval_page import ObservationIntervalPage
-from pages.observation_timepoint_page import ObservationTimepointPage
-from pages.analysis_page import AnalysisPage
+from pages.observation.interval_observation_page import ObservationIntervalPage
+from pages.observation.timepoint_observation_page import ObservationTimepointPage
+from pages.analysis.analysis_page import AnalysisPage
 from pages.settings_page import SettingsPage
-from utils.app_state import AppState
+from core.app_state import AppState
 
 class MainWindow(QMainWindow):
     def __init__(self):

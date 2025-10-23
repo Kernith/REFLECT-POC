@@ -32,22 +32,27 @@ class ColorManager:
             return "#CCCCCC"  # Default gray for unknown categories
     
     def generate_color_spectrum(self, base_color, num_colors):
-        """Generate a spectrum of lighter and darker shades of a base color"""
+        """Generate a spectrum of lighter and darker shades of a base color using HSV color space"""
         if num_colors <= 0:
             return []
-        
-        # Convert hex to RGB
+
+        # Convert hex to RGB, then to HSV for easier lightness (V) scaling
         rgb = mcolors.hex2color(base_color)
+        hsv = mcolors.rgb_to_hsv(rgb)
         
-        # Create color variations
         colors = []
         for i in range(num_colors):
-            # Create a gradient from lighter to darker
-            # Start lighter (higher values) and go darker (lower values)
-            factor = 0.6 + (0.4 * i / (num_colors - 1)) if num_colors > 1 else 0.8
+            # Create a new HSV color with the same hue
+            new_hsv = hsv.copy()
             
-            # Apply the factor to each RGB component
-            new_rgb = [min(1.0, c * factor) for c in rgb]
+            # Vary saturation and value (brightness) while keeping hue constant
+            # Start from lighter (higher value, lower saturation) to darker (lower value, higher saturation)
+            if num_colors > 1:
+                #new_hsv[1] = 0.7 + (0.2 * i / (num_colors - 1))  # 70% to 90% saturation
+                new_hsv[2] = 0.6 + (0.3 * i / (num_colors - 1))  # 60% to 90% brightness (value)
+            
+            # Convert back to RGB and then to hex
+            new_rgb = mcolors.hsv_to_rgb(new_hsv)
             colors.append(mcolors.rgb2hex(new_rgb))
         
         return colors

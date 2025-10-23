@@ -1,7 +1,7 @@
-# utils/app_state.py
+# core/app_state.py
 import json
 from typing import Dict, Any, Optional
-from utils.util_functions import resource_path
+from core.util_functions import resource_path
 
 class AppState:
     """Centralized application state manager"""

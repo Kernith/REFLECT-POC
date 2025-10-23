@@ -8,5 +8,8 @@ use('Qt5Agg')
 class MplCanvas(FigureCanvas):
     def __init__(self):
         self.fig = Figure(figsize=(5, 4))
+        self.fig.patch.set_facecolor('none')  # Set transparent background
         self.ax = self.fig.add_subplot(111)
         super().__init__(self.fig)
+        # Remove border from the canvas
+        self.setStyleSheet("border: none; background: transparent;")

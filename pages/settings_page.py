@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                             QLabel, QComboBox, QGroupBox, QTextEdit, QMessageBox)
 from PyQt6.QtCore import Qt
 import json
-from utils.util_functions import resource_path
+from core.util_functions import resource_path
 
 class SettingsPage(QWidget):
     # Constants

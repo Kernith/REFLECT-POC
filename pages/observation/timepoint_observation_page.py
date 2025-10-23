@@ -1,5 +1,5 @@
-from pages.base_observation_page import BaseObservationPage
-from utils.button_behaviors import ClickButtonBehavior
+from pages.observation.base_observation_page import BaseObservationPage
+from pages.observation.components.button_behaviors import ClickButtonBehavior
 
 class ObservationTimepointPage(BaseObservationPage):
     def __init__(self, switch_page, app_state):

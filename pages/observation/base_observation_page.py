@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                             QGroupBox, QGridLayout)
 from PyQt6.QtCore import QTimer, Qt
 from PyQt6.QtGui import QIcon, QPixmap
-from utils.util_functions import resource_path, get_current_time
+from core.util_functions import resource_path, get_current_time
 
 class BaseObservationPage(QWidget):
     def __init__(self, switch_page, app_state):

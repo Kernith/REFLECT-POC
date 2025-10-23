@@ -2,17 +2,21 @@ import pandas as pd
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.figure import Figure
 from typing import Optional
-from utils.analysis_service import AnalysisService
+from services.analysis.statistics_calculator import StatisticsCalculator
+from services.analysis.insights_generator import InsightsGenerator
+from services.visualization.plot_factory import PlotFactory
+
 
 class PDFExporter:
     """Handles PDF export functionality for analysis reports"""
     
-    def __init__(self, analysis_service: AnalysisService):
-        """Initialize with analysis service"""
-        self.analysis_service = analysis_service
-        self.plot_generator = analysis_service.get_plot_generator()
+    def __init__(self, statistics_calculator: StatisticsCalculator, insights_generator: InsightsGenerator, plot_factory: PlotFactory):
+        """Initialize with analysis services and plot factory"""
+        self.statistics_calculator = statistics_calculator
+        self.insights_generator = insights_generator
+        self.plot_factory = plot_factory
     
-    def export_analysis_report(self, df: pd.DataFrame, output_path: str, file_name: str = "") -> bool:
+    def export_analysis_report(self, df: pd.DataFrame, output_path: str, file_name: str = "", color_manager=None) -> bool:
         """Export comprehensive analysis report to PDF"""
         try:
             with PdfPages(output_path) as pdf:
@@ -26,10 +30,10 @@ class PDFExporter:
                 self._create_summary_page(pdf, df, fig_width, fig_height)
                 
                 # 3. Time series plot
-                self._create_time_series_page(pdf, df, fig_width, fig_height)
+                self._create_time_series_page(pdf, df, fig_width, fig_height, color_manager)
                 
                 # 4. Category distribution
-                self._create_category_distribution_page(pdf, df, fig_width, fig_height)
+                self._create_category_distribution_page(pdf, df, fig_width, fig_height, color_manager)
                 
                 # 5. Response statistics table
                 self._create_statistics_table_page(pdf, df, fig_width, fig_height)
@@ -66,15 +70,22 @@ class PDFExporter:
         ax.text(0.1, 0.9, "Data Summary", fontsize=16, weight='bold')
         
         # Calculate and display summary
-        summary = self.analysis_service.generate_summary_statistics(df)
+        summary = self.statistics_calculator.generate_summary_statistics(df)
         
         summary_text = f"""
         Total Responses: {summary['total_responses']}
         Categories: {summary['unique_categories']} ({', '.join(summary['categories'])})
         Time Span: {summary['time_span_seconds']:.1f} seconds ({summary['time_span_minutes']:.1f} minutes)
         Average Response Time: {summary['avg_response_time']:.1f} seconds
-        Response Range: {summary['response_range'][0]} - {summary['response_range'][1]}
+        Value Range: {summary['value_range'][0]} - {summary['value_range'][1]}
         """
+        
+        # Add header information if available
+        header_info = summary.get('header_info', {})
+        if header_info:
+            summary_text += "\n\nSession Information:\n"
+            for key, value in header_info.items():
+                summary_text += f"{key}: {value}\n"
         
         ax.text(0.1, 0.7, summary_text, fontsize=12, va='top')
         ax.set_xlim(0, 1)
@@ -83,15 +94,15 @@ class PDFExporter:
         pdf.savefig(fig, bbox_inches='tight')
         fig.clear()
     
-    def _create_time_series_page(self, pdf, df: pd.DataFrame, fig_width: float, fig_height: float):
+    def _create_time_series_page(self, pdf, df: pd.DataFrame, fig_width: float, fig_height: float, color_manager):
         """Create time series plot page"""
-        fig = self.plot_generator.create_pdf_time_series_plot(df, fig_width, fig_height)
+        fig = self.plot_factory.create_time_series_plot(df, color_manager, for_pdf=True)
         pdf.savefig(fig, bbox_inches='tight')
         fig.clear()
     
-    def _create_category_distribution_page(self, pdf, df: pd.DataFrame, fig_width: float, fig_height: float):
+    def _create_category_distribution_page(self, pdf, df: pd.DataFrame, fig_width: float, fig_height: float, color_manager):
         """Create category distribution page"""
-        fig = self.plot_generator.create_pdf_category_distribution_plot(df, fig_width, fig_height)
+        fig = self.plot_factory.create_category_distribution_plot(df, color_manager, for_pdf=True)
         pdf.savefig(fig, bbox_inches='tight')
         fig.clear()
     
@@ -102,7 +113,7 @@ class PDFExporter:
         ax.set_title("Response Statistics by Category", fontsize=16, weight='bold')
         
         # Create table data
-        response_stats = self.analysis_service.generate_response_statistics(df)
+        response_stats = self.statistics_calculator.generate_response_statistics(df)
         table_data = []
         headers = ['Category', 'Count', 'Mean', 'Std Dev', 'Min', 'Max']
         
@@ -134,7 +145,7 @@ class PDFExporter:
         ax = fig.add_subplot(111)
         ax.text(0.1, 0.9, "Timeline Analysis & Insights", fontsize=16, weight='bold')
         
-        insights = self.analysis_service.generate_insights(df)
+        insights = self.insights_generator.generate_insights(df)
         insights_text = '\n'.join(insights)
         ax.text(0.1, 0.7, insights_text, fontsize=12, va='top')
         ax.set_xlim(0, 1)
