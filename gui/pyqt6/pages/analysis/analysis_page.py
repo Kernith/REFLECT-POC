@@ -9,12 +9,12 @@ from backend.analysis.statistics_calculator import StatisticsCalculator
 from backend.analysis.insights_generator import InsightsGenerator
 from backend.visualization.plot_factory import PlotFactory
 from gui.pyqt6.adapters.plot_adapter import PyQt6PlotAdapter
-from pages.analysis.components.summary_section import SummarySection
-from pages.analysis.components.statistics_section import StatisticsSection
-from pages.analysis.components.timeline_section import TimelineSection
-from pages.analysis.components.comments_section import CommentsSection
-from pages.analysis.components.time_series_section import TimeSeriesSection
-from pages.analysis.components.distribution_section import DistributionSection
+from gui.pyqt6.pages.analysis.components.summary_section import SummarySection
+from gui.pyqt6.pages.analysis.components.statistics_section import StatisticsSection
+from gui.pyqt6.pages.analysis.components.timeline_section import TimelineSection
+from gui.pyqt6.pages.analysis.components.comments_section import CommentsSection
+from gui.pyqt6.pages.analysis.components.time_series_section import TimeSeriesSection
+from gui.pyqt6.pages.analysis.components.distribution_section import DistributionSection
 
 class AnalysisPage(QWidget):
     def __init__(self, switch_page, app_state):

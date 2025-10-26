@@ -1,10 +1,10 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QStackedWidget
-from pages.home_page import HomePage
-from pages.observation.interval_observation_page import ObservationIntervalPage
-from pages.observation.timepoint_observation_page import ObservationTimepointPage
-from pages.analysis.analysis_page import AnalysisPage
-from pages.settings_page import SettingsPage
+from gui.pyqt6.pages.home_page import HomePage
+from gui.pyqt6.pages.observation.interval_observation_page import ObservationIntervalPage
+from gui.pyqt6.pages.observation.timepoint_observation_page import ObservationTimepointPage
+from gui.pyqt6.pages.analysis.analysis_page import AnalysisPage
+from gui.pyqt6.pages.settings_page import SettingsPage
 from backend.config.config_manager import ConfigManager
 from backend.config.app_state import AppState
 

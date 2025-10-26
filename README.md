@@ -63,8 +63,13 @@ REFLECT/
 │   └── visualization/      # Plot generation
 ├── gui/                    # GUI-specific implementations
 │   ├── pyqt6/             # Desktop app (PyQt6)
+│   │   ├── pages/         # PyQt6 UI pages
+│   │   ├── adapters/      # PyQt6 adapters
+│   │   └── widgets/       # PyQt6 widgets
 │   └── streamlit/         # Web app (Streamlit)
-├── pages/                  # PyQt6 UI pages
+│       ├── pages/         # Streamlit pages
+│       ├── adapters/      # Streamlit adapters
+│       └── main.py        # Streamlit entry point
 ├── core/                   # Utility functions
 ├── data/                   # Sample data and templates
 ├── images/                 # Static assets

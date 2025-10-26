@@ -1,5 +1,5 @@
-from pages.observation.base_observation_page import BaseObservationPage
-from pages.observation.components.button_behaviors import ClickButtonBehavior
+from gui.pyqt6.pages.observation.base_observation_page import BaseObservationPage
+from gui.pyqt6.pages.observation.components.button_behaviors import ClickButtonBehavior
 
 class ObservationTimepointPage(BaseObservationPage):
     def __init__(self, switch_page, app_state):

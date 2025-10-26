@@ -1,4 +1,4 @@
-# pages/home_page.py
+# gui/pyqt6/pages/home_page.py
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
 from PyQt6.QtCore import Qt
 

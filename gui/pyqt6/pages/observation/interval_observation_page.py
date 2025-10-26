@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QPushButton, QMessageBox
 from PyQt6.QtCore import QTimer
-from pages.observation.base_observation_page import BaseObservationPage
-from pages.observation.components.button_behaviors import ToggleButtonBehavior
+from gui.pyqt6.pages.observation.base_observation_page import BaseObservationPage
+from gui.pyqt6.pages.observation.components.button_behaviors import ToggleButtonBehavior
 from core.util_functions import get_current_time
 
 class ObservationIntervalPage(BaseObservationPage):
