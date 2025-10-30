@@ -1,30 +1,22 @@
 import streamlit as st
 import pandas as pd
-import io
 import time
+from streamlit_autorefresh import st_autorefresh
 from backend.data.collectors.observation_collector import ObservationCollector
 from backend.data.collectors.timer_service import TimerService
 from backend.data.exporters.csv_exporter import CSVExporter
 from gui.streamlit.adapters.timer_adapter import StreamlitTimerAdapter
 
-
 def render_observation_page():
     """Render the observation page"""
-    st.title("📝 Classroom Observation")
-    
-    # Navigation
-    if st.button("🏠 Back to Home"):
-        st.session_state.page = "home"
-        st.rerun()
-    
-    st.markdown("---")
-    
-    # Get observation type
+    # Get observation type (interval, timepoint, etc.)
     observation_type = st.session_state.get('observation_type', 'interval')
+    
+    # Get config from session state
+    config = st.session_state.get('current_config', {})
     
     # Initialize services
     if 'observation_collector' not in st.session_state:
-        config = st.session_state.get('current_config', {})
         st.session_state.observation_collector = ObservationCollector(config)
         st.session_state.timer_service = TimerService()
         st.session_state.timer_adapter = StreamlitTimerAdapter(st.session_state.timer_service)
@@ -34,21 +26,45 @@ def render_observation_page():
     collector = st.session_state.observation_collector
     timer_adapter = st.session_state.timer_adapter
     
-    # Timer display and controls
-    col1, col2, col3 = st.columns([2, 1, 1])
+    # student, engagement, and instructor activities
+    student_col, engagement_col, instructor_col = st.columns([3, 2, 3])
+
+    with student_col:
+        render_student_actions(config, collector, observation_type)
     
-    with col1:
-        st.metric("⏱️ Timer", timer_adapter.format_time())
+    with engagement_col:
+        render_engagement_section(config, collector, observation_type)
+        st.markdown("---")
+        render_comments_section(collector)
+    
+    with instructor_col:
+        render_instructor_actions(config, collector, observation_type)
+
+    st.markdown("---")
+
+    # Timer display and controls
+    col1, col2, col3, col4, col5 = st.columns([3, 1, 1, 1, 3])
     
     with col2:
+        # Create a placeholder for the timer that will auto-refresh
+        timer_placeholder = st.empty()
+        
+        # Display the current timer value
+        timer_placeholder.metric("Timer", timer_adapter.format_time())
+        
+        # Auto-refresh only when timer is running
+        if timer_adapter.is_running():
+            st_autorefresh(interval=1000, key="timer_refresh")
+    
+    with col3:
         if not timer_adapter.is_running():
-            if st.button("▶️ Start Observation", type="primary"):
+            if st.button("Start Observation", type="primary"):
                 collector.start_observation()
                 timer_adapter.start()
                 st.session_state.button_states = {}
                 st.rerun()
         else:
-            if st.button("⏹️ Stop & Save", type="secondary"):
+            if st.button("Stop & Save", type="secondary"):
                 timer_adapter.stop()
                 responses = collector.get_responses()
                 
@@ -60,22 +76,19 @@ def render_observation_page():
                 else:
                     st.warning("No observations recorded.")
                 st.rerun()
-    
-    with col3:
-        if st.button("🔄 Reset"):
-            timer_adapter.reset()
-            collector.clear_responses()
-            st.session_state.button_states = {}
-            st.session_state.show_download = False
+        
+    with col4:
+        if st.button("Back to Home"):
+            st.session_state.page = "home"
             st.rerun()
     
     # Show download button if data is available
     if st.session_state.get('show_download', False):
-        st.success("✅ Observation completed! Download your data below.")
+        st.success("Observation completed! Download your data below.")
         csv_data = st.session_state.get('csv_data', '')
         if csv_data:
             st.download_button(
-                label="📥 Download Observation Data",
+                label="Download Observation Data",
                 data=csv_data,
                 file_name=f"observation_{int(time.time())}.csv",
                 mime="text/csv",
@@ -86,144 +99,141 @@ def render_observation_page():
     
     # Observation interface
     if timer_adapter.is_running():
-        st.markdown(f"### 📊 Recording: {observation_type.title()} Mode")
-        
-        # Get current config
-        config = st.session_state.get('current_config', {})
-        
-        # Create observation interface
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            render_student_actions(config, collector, observation_type)
-        
-        with col2:
-            render_engagement_section(config, collector, observation_type)
-        
-        with col3:
-            render_instructor_actions(config, collector, observation_type)
-        
-        # Comments section
-        st.markdown("---")
-        render_comments_section(collector)
-        
-        # Current observation summary
-        st.markdown("---")
         render_observation_summary(collector)
     
-    else:
-        st.info("👆 Click 'Start Observation' to begin recording classroom behaviors")
-
 
 def render_student_actions(config, collector, observation_type):
     """Render student actions section"""
-    st.markdown("### 👨‍🎓 Student Actions")
+    st.markdown("### Student Actions")
     
     student_actions = config.get('student_actions', [])
     if not student_actions:
         st.info("No student actions configured")
         return
     
-    for action in student_actions:
+    # Custom wrapper for CSS targeting
+    st.html('<div class="student-actions-section">')
+    
+    # Create 4 columns for button grid with equal spacing
+    cols = st.columns(4, gap = "small")
+
+    for i, action in enumerate(student_actions):
         label = action['label']
         text = action['text']
         key = f"student_{label}"
         
-        if observation_type == "interval":
-            # Toggle buttons for interval mode
-            checked = st.session_state.button_states.get(key, False)
-            if st.checkbox(f"**{label}**", value=checked, key=f"cb_{key}"):
-                st.session_state.button_states[key] = True
+        # Use modulo to cycle through columns
+        col_index = i % 4
+        
+        with cols[col_index]:
+            if observation_type == "interval":
+                # Toggle buttons for interval mode
+                checked = st.session_state.button_states.get(key, False)
+                
+                # Create button style based on state
+                button_type = "primary" if checked else "secondary"
+                button_text = f"{label}" if checked else f"{label}"
+                
+                if st.button(button_text, key=f"btn_{key}", help=text, type=button_type):
+                    # Toggle the state
+                    st.session_state.button_states[key] = not checked
+                    st.rerun()
             else:
-                st.session_state.button_states[key] = False
-            
-            st.caption(text)
-        else:
-            # Click buttons for timepoint mode
-            if st.button(f"**{label}**", key=f"btn_{key}", help=text):
-                collector.record_response("Student", label, 1)
-                st.success(f"Recorded: {label}")
+                # Click buttons for timepoint mode
+                if st.button(f"**{label}**", key=f"btn_{key}", help=text):
+                    collector.record_response("Student", label, 1)
+                    st.success(f"Recorded: {label}")
+
+    st.html('</div>')
 
 
 def render_instructor_actions(config, collector, observation_type):
     """Render instructor actions section"""
-    st.markdown("### 👨‍🏫 Instructor Actions")
+    st.markdown("### Instructor Actions")
     
     instructor_actions = config.get('instructor_actions', [])
     if not instructor_actions:
         st.info("No instructor actions configured")
         return
     
-    for action in instructor_actions:
+    # Create 4 columns for button grid
+    cols = st.columns(4, gap = "small")
+    
+    for i, action in enumerate(instructor_actions):
         label = action['label']
         text = action['text']
         key = f"instructor_{label}"
         
-        if observation_type == "interval":
-            # Toggle buttons for interval mode
-            checked = st.session_state.button_states.get(key, False)
-            if st.checkbox(f"**{label}**", value=checked, key=f"cb_{key}"):
-                st.session_state.button_states[key] = True
+        # Use modulo to cycle through columns
+        col_index = i % 4
+        
+        with cols[col_index]:
+            if observation_type == "interval":
+                # Toggle buttons for interval mode
+                checked = st.session_state.button_states.get(key, False)
+                
+                # Create button style based on state
+                button_type = "primary" if checked else "secondary"
+                button_text = f"{label}" if checked else f"{label}"
+                
+                if st.button(button_text, key=f"btn_{key}", help=text, type=button_type):
+                    # Toggle the state
+                    st.session_state.button_states[key] = not checked
+                    st.rerun()
             else:
-                st.session_state.button_states[key] = False
-            
-            st.caption(text)
-        else:
-            # Click buttons for timepoint mode
-            if st.button(f"**{label}**", key=f"btn_{key}", help=text):
-                collector.record_response("Instructor", label, 1)
-                st.success(f"Recorded: {label}")
+                # Click buttons for timepoint mode
+                if st.button(f"**{label}**", key=f"btn_{key}", help=text):
+                    collector.record_response("Instructor", label, 1)
+                    st.success(f"Recorded: {label}")
 
 
 def render_engagement_section(config, collector, observation_type):
     """Render engagement section"""
-    st.markdown("### 📊 Student Engagement")
+    st.markdown("### Student Engagement")
     
     engagement_levels = config.get('engagement_images', [])
     if not engagement_levels:
         st.info("No engagement levels configured")
         return
     
-    if observation_type == "interval":
-        # Radio buttons for interval mode (only one selection)
-        selected_engagement = st.session_state.get('selected_engagement', None)
+    # Create 3 columns for button grid with equal spacing
+    cols = st.columns(3, gap = "small")
+    
+    for i, level in enumerate(engagement_levels):
+        label = level['label']
+        text = level['text']
+        key = f"engagement_{label}"
         
-        for level in engagement_levels:
-            label = level['label']
-            text = level['text']
-            key = f"engagement_{label}"
-            
-            if st.radio(f"**{label}**", [False, True], key=f"radio_{key}", 
-                       format_func=lambda x: "Selected" if x else "Not Selected"):
-                # Unselect others
-                for other_level in engagement_levels:
-                    if other_level['label'] != label:
-                        st.session_state[f"radio_engagement_{other_level['label']}"] = False
-                st.session_state['selected_engagement'] = label
-                st.session_state.button_states[key] = True
+        # Use modulo to cycle through columns
+        col_index = i % 3
+        
+        with cols[col_index]:
+            if observation_type == "interval":
+                # Toggle buttons for interval mode
+                checked = st.session_state.button_states.get(key, False)
+                
+                # Create button style based on state
+                button_type = "primary" if checked else "secondary"
+                button_text = f"{label}" if checked else f"{label}"
+                
+                if st.button(button_text, key=f"btn_{key}", help=text, type=button_type):
+                    # Toggle the state
+                    st.session_state.button_states[key] = not checked
+                    st.rerun()
             else:
-                st.session_state.button_states[key] = False
-            
-            st.caption(text)
-    else:
-        # Click buttons for timepoint mode
-        for level in engagement_levels:
-            label = level['label']
-            text = level['text']
-            key = f"engagement_{label}"
-            
-            if st.button(f"**{label}**", key=f"btn_{key}", help=text):
-                collector.record_response("Engagement", label, get_engagement_value(label))
-                st.success(f"Recorded: {label}")
+                # Click buttons for timepoint mode
+                if st.button(f"**{label}**", key=f"btn_{key}", help=text):
+                    collector.record_response("Engagement", label, get_engagement_value(label))
+                    st.success(f"Recorded: {label}")
 
 
 def render_comments_section(collector):
     """Render comments section"""
-    st.markdown("### 💬 Comments")
+    st.markdown("### Comments")
     
     comment = st.text_area("Add a comment:", key="comment_field", height=100)
     
-    if st.button("💾 Save Comment"):
+    if st.button("Save Comment"):
         if comment.strip():
             collector.record_response("Comment", comment.strip())
             st.success("Comment saved!")
@@ -235,7 +245,7 @@ def render_comments_section(collector):
 
 def render_observation_summary(collector):
     """Render current observation summary"""
-    st.markdown("### 📈 Current Observation Summary")
+    st.markdown("### Current Observation Summary")
     
     responses = collector.get_responses()
     if responses:

@@ -2,6 +2,7 @@ import streamlit as st
 from backend.config.config_manager import ConfigManager
 from backend.config.app_state import AppState
 from .pages import home_page, observation_page, analysis_page, settings_page
+import os
 
 
 def main():
@@ -9,7 +10,7 @@ def main():
     # Configure page
     st.set_page_config(
         page_title="REFLECT - Classroom Observation Tool",
-        page_icon="🎓",
+        page_icon="images/icon.png",
         layout="wide",
         initial_sidebar_state="collapsed"
     )
@@ -50,90 +51,31 @@ def main():
 
 
 def add_custom_css():
-    """Add custom CSS styling"""
-    st.markdown("""
-    <style>
-    /* Main title styling */
-    .main-title {
-        text-align: center;
-        color: #1f77b4;
-        margin-bottom: 2rem;
-    }
+    # Get the directory of the current file
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    css_file_path = os.path.join(current_dir, 'assets', 'styles.css')
     
-    /* Button styling */
-    .stButton > button {
-        border-radius: 10px;
-        border: 2px solid #1f77b4;
-        transition: all 0.3s ease;
-    }
-    
-    .stButton > button:hover {
-        background-color: #1f77b4;
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    
-    /* Metric styling */
-    .metric-container {
-        background-color: #f0f2f6;
-        padding: 1rem;
-        border-radius: 10px;
-        border-left: 4px solid #1f77b4;
-    }
-    
-    /* Sidebar styling */
-    .css-1d391kg {
-        background-color: #f8f9fa;
-    }
-    
-    /* Success message styling */
-    .stSuccess {
-        border-radius: 10px;
-        border-left: 4px solid #28a745;
-    }
-    
-    /* Error message styling */
-    .stError {
-        border-radius: 10px;
-        border-left: 4px solid #dc3545;
-    }
-    
-    /* Info message styling */
-    .stInfo {
-        border-radius: 10px;
-        border-left: 4px solid #17a2b8;
-    }
-    
-    /* Warning message styling */
-    .stWarning {
-        border-radius: 10px;
-        border-left: 4px solid #ffc107;
-    }
-    
-    /* Expander styling */
-    .streamlit-expanderHeader {
-        background-color: #f8f9fa;
-        border-radius: 5px;
-    }
-    
-    /* File uploader styling */
-    .stFileUploader > div {
-        border-radius: 10px;
-        border: 2px dashed #1f77b4;
-    }
-    
-    /* Download button styling */
-    .stDownloadButton > button {
-        background-color: #28a745;
-        color: white;
-        border: none;
-        border-radius: 10px;
-    }
-    
-    .stDownloadButton > button:hover {
-        background-color: #218838;
-        transform: translateY(-1px);
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    try:
+        with open(css_file_path, 'r', encoding='utf-8') as f:
+            css_content = f.read()
+        
+        # Get colors from session state
+        colors = st.session_state.get('colors', {})
+        
+        # Generate CSS variables
+        css_variables = f"""
+        :root {{
+            --student-color: {colors.get('student', '#F46715')};
+            --instructor-color: {colors.get('instructor', '#0C8346')};
+            --engagement-color: {colors.get('engagement', '#4169E1')};
+        }}
+        """
+        
+        # Combine CSS variables with the rest of the CSS
+        full_css = css_variables + css_content
+        st.markdown(f"<style>{full_css}</style>", unsafe_allow_html=True)
+        
+    except FileNotFoundError:
+        st.error(f"CSS file not found at: {css_file_path}")
+    except Exception as e:
+        st.error(f"Error loading CSS: {str(e)}")

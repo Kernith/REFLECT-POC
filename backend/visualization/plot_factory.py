@@ -59,10 +59,8 @@ class PlotFactory:
                   linestyle='--')
         
         ax.set_xlabel("Time (seconds)")
-        ax.set_ylabel("Response")
-        ax.set_title("Survey Responses Over Time")
+        ax.set_ylabel("Activity")
         ax.grid(True, alpha=0.3)
-        ax.legend()
         
         return fig
 
@@ -90,7 +88,7 @@ class PlotFactory:
             ax1.set_title('Engagement Responses')
         else:
             ax1.text(0.5, 0.5, 'No Engagement Data', ha='center', va='center', transform=ax1.transAxes)
-            ax1.set_title('Engagement Responses')
+            ax1.set_title('Engagement')
         
         # Create pie chart for Instructor
         if not instructor_data.empty:
@@ -101,10 +99,10 @@ class PlotFactory:
             ax2.pie(instructor_counts.values, labels=instructor_counts.index, 
                     autopct='%1.1f%%', startangle=90,
                     colors=instructor_colors)
-            ax2.set_title('Instructor Actions')
+            ax2.set_title('Instructor Activities')
         else:
             ax2.text(0.5, 0.5, 'No Instructor Data', ha='center', va='center', transform=ax2.transAxes)
-            ax2.set_title('Instructor Actions')
+            ax2.set_title('Instructor Activities')
         
         # Create pie chart for Student
         if not student_data.empty:
@@ -115,9 +113,9 @@ class PlotFactory:
             ax3.pie(student_counts.values, labels=student_counts.index, 
                     autopct='%1.1f%%', startangle=90,
                     colors=student_colors)
-            ax3.set_title('Student Actions')
+            ax3.set_title('Student Activities')
         else:
             ax3.text(0.5, 0.5, 'No Student Data', ha='center', va='center', transform=ax3.transAxes)
-            ax3.set_title('Student Actions')
+            ax3.set_title('Student Activities')
         
         return fig

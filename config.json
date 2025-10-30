@@ -149,9 +149,9 @@
             ],
             "engagement_images": [
                 {
-                    "label": "Low",
-                    "text": "Small fraction (10-20%) obviously engaged.",
-                    "image": "images/engagement_low.png"
+                    "label": "High",
+                    "text": "Large fraction of students (80+%) clearly engaged in class activity or listening to instructor.",
+                    "image": "images/engagement_high.png"
                 },
                 {
                     "label": "Medium",
@@ -159,9 +159,9 @@
                     "image": "images/engagement_medium.png"
                 },
                 {
-                    "label": "High",
-                    "text": "Large fraction of students (80+%) clearly engaged in class activity or listening to instructor.",
-                    "image": "images/engagement_high.png"
+                    "label": "Low",
+                    "text": "Small fraction (10-20%) obviously engaged.",
+                    "image": "images/engagement_low.png"
                 }
             ]
         },
@@ -307,9 +307,9 @@
             ],
             "engagement_images": [
                 {
-                    "label": "Low",
-                    "text": "Small fraction (10-20%) obviously engaged.",
-                    "image": "images/engagement_low.png"
+                    "label": "High",
+                    "text": "Large fraction of students (80+%) clearly engaged in class activity or listening to instructor.",
+                    "image": "images/engagement_high.png"
                 },
                 {
                     "label": "Medium",
@@ -317,9 +317,9 @@
                     "image": "images/engagement_medium.png"
                 },
                 {
-                    "label": "High",
-                    "text": "Large fraction of students (80+%) clearly engaged in class activity or listening to instructor.",
-                    "image": "images/engagement_high.png"
+                    "label": "Low",
+                    "text": "Small fraction (10-20%) obviously engaged.",
+                    "image": "images/engagement_low.png"
                 }
             ]
         },
@@ -455,9 +455,9 @@
             ],
             "engagement_images": [
                 {
-                    "label": "Low",
-                    "text": "Small fraction (10-20%) obviously engaged.",
-                    "image": "images/engagement_low.png"
+                    "label": "High",
+                    "text": "Large fraction of students (80+%) clearly engaged in class activity or listening to instructor.",
+                    "image": "images/engagement_high.png"
                 },
                 {
                     "label": "Medium",
@@ -465,9 +465,9 @@
                     "image": "images/engagement_medium.png"
                 },
                 {
-                    "label": "High",
-                    "text": "Large fraction of students (80+%) clearly engaged in class activity or listening to instructor.",
-                    "image": "images/engagement_high.png"
+                    "label": "Low",
+                    "text": "Small fraction (10-20%) obviously engaged.",
+                    "image": "images/engagement_low.png"
                 }
             ]
         }

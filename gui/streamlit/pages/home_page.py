@@ -3,62 +3,98 @@ import streamlit as st
 
 def render_home_page():
     """Render the home page"""
-    st.title("🎓 REFLECT - Classroom Observation Tool")
-    st.markdown("Welcome to REFLECT! Choose your observation method:")
+    # Get current config from app state
+    app_state = st.session_state.get('app_state')
+    current_config = app_state.get_current_config() if app_state else {}
+    timer_method = current_config.get('timer_method', 'timepoint')  # Default to timepoint if not found
+    
+    # set custom width in css
+    st.markdown("""
+    <style>
+    .stApp {
+        max-width: 50%;
+        margin: 0 auto;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("# <span style='color: #007ACC;'>REFLECT</span>", unsafe_allow_html=True)
+    st.markdown("### <span style='color: #007ACC;'>R</span>esearch & <span style='color: #007ACC;'>E</span>valuation <span style='color: #007ACC;'>F</span>ramework for <span style='color: #007ACC;'>L</span>earning, <span style='color: #007ACC;'>E</span>ngagement, <span style='color: #007ACC;'>C</span>ollaboration, and <span style='color: #007ACC;'>T</span>racking", unsafe_allow_html=True)
     
     st.markdown("---")
     
     # Navigation buttons in a grid layout
-    col1, col2 = st.columns(2)
+    left_col, right_col = st.columns([1, 2])
     
-    with col1:
-        st.markdown("### 📊 Interval Observation")
-        st.markdown("Record behaviors in timed intervals (e.g., every 2 minutes)")
-        if st.button("🕐 Start Interval Observation", use_container_width=True, type="primary"):
+    with left_col:
+        if st.button(f"Start Observation ({current_config.get('name', 'Unknown')})", use_container_width=True, type="primary"):
             st.session_state.page = "observation"
-            st.session_state.observation_type = "interval"
+            st.session_state.observation_type = timer_method
             st.rerun()
-    
-    with col2:
-        st.markdown("### ⏱️ Timepoint Observation")
-        st.markdown("Record behaviors as they occur in real-time")
-        if st.button("⚡ Start Timepoint Observation", use_container_width=True, type="primary"):
-            st.session_state.page = "observation"
-            st.session_state.observation_type = "timepoint"
-            st.rerun()
-    
-    st.markdown("---")
-    
-    # Additional navigation options
-    col3, col4 = st.columns(2)
-    
-    with col3:
-        if st.button("📈 Data Analysis", use_container_width=True):
+
+        with st.expander("### Select Protocol"):
+            # Get config manager and app state from session
+            config_manager = st.session_state.get('config_manager')
+            app_state = st.session_state.get('app_state')
+            
+            if config_manager and app_state:
+                # Get available observation configs
+                observation_configs = config_manager.get_observation_configs()
+                
+                if observation_configs:
+                    # Create list of config names
+                    config_names = [config['name'] for config in observation_configs]
+                    
+                    # Get current config index from app state
+                    current_config = app_state.get_current_config()
+                    current_index = 0
+                    
+                    # Find the index of the current config
+                    for i, config in enumerate(observation_configs):
+                        if config['name'] == current_config.get('name'):
+                            current_index = i
+                            break
+                    
+                    # Radio buttons for protocol selection
+                    selected = st.radio(
+                        "Choose an observation protocol:",
+                        options=range(len(config_names)),
+                        format_func=lambda x: config_names[x],
+                        index=current_index,
+                        horizontal=True
+                    )
+                    
+                    # Update app state if selection changed
+                    if selected != current_index:
+                        app_state.update_config(selected)
+                        
+                        # Update session state to reflect the change
+                        st.session_state.current_config = app_state.get_current_config()
+                        st.session_state.colors = st.session_state.current_config.get('colors', {})
+                        
+                        # Trigger rerun to update the UI
+                        st.rerun()
+                else:
+                    st.error("No observation protocols found in configuration")
+            else:
+                st.error("Configuration system not initialized")
+        
+        if st.button("Data Analysis", use_container_width=True, type="primary"):
             st.session_state.page = "analysis"
             st.rerun()
-    
-    with col4:
-        if st.button("⚙️ Settings", use_container_width=True):
+        
+        if st.button("Settings", use_container_width=True, type="primary"):
             st.session_state.page = "settings"
             st.rerun()
+
+        
     
-    # Information section
-    st.markdown("---")
-    st.markdown("### ℹ️ About REFLECT")
-    st.markdown("""
-    REFLECT is a classroom observation tool designed to help educators:
-    - **Observe** classroom behaviors systematically
-    - **Analyze** teaching patterns and student engagement
-    - **Reflect** on instructional effectiveness
-    - **Improve** teaching practices through data-driven insights
-    """)
-    
-    # Quick start guide
-    with st.expander("🚀 Quick Start Guide"):
-        st.markdown("""
-        1. **Choose Observation Method**: Select interval or timepoint observation
-        2. **Start Recording**: Click the appropriate button to begin
-        3. **Record Behaviors**: Use the interface to log student and instructor actions
-        4. **Save Data**: Download your observations as CSV files
-        5. **Analyze Results**: Upload CSV files to view plots and statistics
-        """)
+    with right_col:
+        # Quick start guide
+        st.markdown("REFLECT Quick Start Guide:")
+        st.markdown("1. **Select Observation Protocol**: Select an observation protocol from the dropdown menu")
+        st.markdown("2. **Start Recording**: Click the appropriate button to begin")
+        st.markdown("3. **Record Behaviors**: Use the interface to log student and instructor actions")
+        st.markdown("4. **Save Data**: Download your observations as CSV files")
+        st.markdown("5. **Analyze Results**: Upload CSV files to view plots and statistics")
+

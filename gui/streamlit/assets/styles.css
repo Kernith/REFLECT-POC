@@ -1,0 +1,147 @@
+.main-title {
+    text-align: center;
+    color: #1f77b4;
+    margin-bottom: 2rem;
+}
+
+/* Action buttons styling */
+[class*="st-key-btn_student_"],
+[class*="st-key-btn_instructor_"],
+[class*="st-key-btn_engagement_"] {
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+}
+
+[class*="st-key-btn_student_"] *,
+[class*="st-key-btn_instructor_"] *,
+[class*="st-key-btn_engagement_"] * {
+    height: 100% !important;
+}
+
+[class*="st-key-btn_student_"] .stButton button {
+    background-color: var(--student-color, #F46715) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0.5em 1em !important;
+}
+
+[class*="st-key-btn_instructor_"] .stButton button {
+    background-color: var(--instructor-color, #0C8346) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0.5em 1em !important;
+}
+
+[class*="st-key-btn_engagement_"] .stButton button {
+    background-color: var(--engagement-color, #4169E1) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0.5em 1em !important;
+}
+
+.stButton > button {
+    border-radius: 10px;
+    border: 2px solid #1f77b4;
+    transition: all 0.3s ease;
+}
+
+.stButton > button:hover {
+    background-color: #1f77b4;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.metric-container {
+    background-color: #f0f2f6;
+    padding: 1rem;
+    border-radius: 10px;
+    border-left: 4px solid #1f77b4;
+}
+
+.css-1d391kg {
+    background-color: #f8f9fa;
+}
+
+.stSuccess {
+    border-radius: 10px;
+    border-left: 4px solid #28a745;
+}
+
+.stError {
+    border-radius: 10px;
+    border-left: 4px solid #dc3545;
+}
+
+.stInfo {
+    border-radius: 10px;
+    border-left: 4px solid #17a2b8;
+}
+
+.stWarning {
+    border-radius: 10px;
+    border-left: 4px solid #ffc107;
+}
+
+.streamlit-expanderHeader {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.stFileUploader > div {
+    border-radius: 10px;
+    border: 2px dashed #1f77b4;
+}
+
+.stDownloadButton > button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 10px;
+}
+
+.stDownloadButton > button:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+}
+
+/* Responsive Design - Stack columns on mobile devices */
+@media screen and (max-width: 768px) {
+    /* Target Streamlit's column containers */
+    div[data-testid="column"] {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* Ensure horizontal blocks stack vertically */
+    div[data-testid="stHorizontalBlock"] {
+        flex-direction: column !important;
+    }
+    
+    /* Make buttons full width on mobile for better touch targets */
+    .stButton > button {
+        width: 100% !important;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Adjust home page max-width on mobile */
+    .stApp {
+        max-width: 100% !important;
+    }
+    
+    /* Better spacing for metrics on mobile */
+    [data-testid="stMetricValue"] {
+        font-size: 1.5rem;
+    }
+}
+
+/* Tablet adjustments */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    /* Optional: Adjust column proportions for tablets */
+    /* Columns will naturally resize but stay side-by-side */
+}
