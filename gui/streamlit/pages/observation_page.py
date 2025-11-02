@@ -284,6 +284,25 @@ def _render_click_button(key, label, text, category, collector):
         st.success(f"Recorded: {label}")
 
 
+def _render_engagement_toggle_button(key, label, text):
+    """Render a toggle button for engagement (radio button behavior - only one can be checked)"""
+    checked = st.session_state.button_states.get(key, False)
+    # Modify button key to include checked state for CSS targeting
+    button_key = f"btn_{key}{'_checked' if checked else ''}"
+    
+    if st.button(label, key=button_key, help=text):
+        # Radio button behavior: uncheck all other engagement buttons first
+        if not checked:  # Only do this if we're checking (not unchecking)
+            # Clear all engagement button states
+            for existing_key in list(st.session_state.button_states.keys()):
+                if existing_key.startswith('engagement_'):
+                    st.session_state.button_states[existing_key] = False
+        
+        # Toggle the current button (but if we just cleared others, this will set it to True)
+        st.session_state.button_states[key] = not checked
+        st.rerun()
+
+
 def _render_button_grid(actions, cols_per_row, category_key, prefix, observation_type, collector):
     """Generic function to render action buttons for any category"""
     if not actions:
@@ -304,6 +323,43 @@ def _render_button_grid(actions, cols_per_row, category_key, prefix, observation
             else:
                 category = CATEGORY_PREFIXES.get(prefix, category_key)
                 _render_click_button(key, label, text, category, collector)
+
+
+def _render_engagement_button_grid(actions, cols_per_row, category_key, prefix, observation_type, collector):
+    """Render engagement buttons with radio button behavior (only one can be checked at a time)"""
+    if not actions:
+        st.info(f"No {category_key.replace('_', ' ')} configured")
+        return
+    
+    cols = st.columns(cols_per_row, gap="small")
+    
+    for i, action in enumerate(actions):
+        label = action['label']
+        text = action.get('text', '')
+        key = f"{prefix}_{label}"
+        col_index = i % cols_per_row
+        
+        with cols[col_index]:
+            if observation_type == "interval":
+                _render_engagement_toggle_button(key, label, text)
+            else:
+                # For timepoint mode, also use radio behavior
+                category = CATEGORY_PREFIXES.get(prefix, category_key)
+                # Check if this button is the currently selected one
+                is_selected = st.session_state.button_states.get(key, False)
+                button_key = f"btn_{key}"
+                
+                if st.button(f"**{label}**", key=button_key, help=text):
+                    # Clear all other engagement buttons
+                    for existing_key in list(st.session_state.button_states.keys()):
+                        if existing_key.startswith('engagement_'):
+                            st.session_state.button_states[existing_key] = False
+                    
+                    # Set this button as selected and record response
+                    st.session_state.button_states[key] = True
+                    value = get_engagement_value(label)
+                    collector.record_response(category, label, value)
+                    st.success(f"Recorded: {label}")
 
 
 def save_interval_data(collector, config):
@@ -355,7 +411,7 @@ def render_engagement_section(config, collector, observation_type):
     """Render engagement section"""
     st.markdown("### Student Engagement")
     engagement_levels = config.get('engagement_images', [])
-    _render_button_grid(engagement_levels, 3, "engagement_images", "engagement", observation_type, collector)
+    _render_engagement_button_grid(engagement_levels, 3, "engagement_images", "engagement", observation_type, collector)
 
 
 def render_comments_section(collector):
