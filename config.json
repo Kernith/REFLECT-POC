@@ -4,7 +4,8 @@
         "engagement": "#4169E1", 
         "instructor": "#0C8346",
         "comments": "#808080",
-        "carmine": "#931621"
+        "carmine": "#931621",
+        "toggled": "#FFDF00"
     },
     "observation_configs": [
         {

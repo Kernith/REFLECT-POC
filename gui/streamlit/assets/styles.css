@@ -42,6 +42,21 @@
     padding: 0.5em 1em !important;
 }
 
+/* Toggled button styles - target buttons with _checked in their key */
+[class*="st-key-btn_student_"][class*="_checked"] .stButton button,
+[class*="st-key-btn_instructor_"][class*="_checked"] .stButton button,
+[class*="st-key-btn_engagement_"][class*="_checked"] .stButton button {
+    background-color: var(--toggled-color, #FFDF00) !important;
+    color: black !important;
+}
+
+/* Also need to override more specifically since Streamlit's structure may vary */
+.button-toggled-container ~ div .stButton button,
+div.button-toggled-container .stButton button {
+    background-color: var(--toggled-color, #FFDF00) !important;
+    color: black !important;
+}
+
 .stButton > button {
     border-radius: 10px;
     border: 2px solid #1f77b4;

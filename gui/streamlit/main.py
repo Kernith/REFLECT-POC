@@ -68,6 +68,7 @@ def add_custom_css():
             --student-color: {colors.get('student', '#F46715')};
             --instructor-color: {colors.get('instructor', '#0C8346')};
             --engagement-color: {colors.get('engagement', '#4169E1')};
+            --toggled-color: {colors.get('toggled', '#FFDF00')};
         }}
         """
         

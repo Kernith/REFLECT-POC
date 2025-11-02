@@ -1,31 +1,22 @@
 #### improvements
-Add instruction for each configuration
-Shake window/phone if > 75% of timer and no buttons pressed
-Add groups to the button layout (e.g. under students have buttons related to listening, talking, working)
-- make instructor elements match student (e.g. asking and answering questions vs lecturing and listening)
-Add %'s to engagement buttons in `COPUS (test)`
-Make a prompt if an interval was missed and give a chance to add for the last interval
-Add pause button?
-Add 'time left in interval' button
-Maybe flash screen or make some visual cue that time has reset
-Show the protocol chosen on the observation page
-Canceling stop and save should go to paused obs page, which can be restarted (it currently sends home)
-Change low to max 30%
-Make listening to listening/watching to include observing demonstartion
-
-
-#### considerations
-add option to record sound and determine via AI who is talking
-
+- Add instruction for each configuration
+- Shake window/phone if > 75% of timer and no buttons pressed
+- Add groups to the button layout (e.g. under students have buttons related to listening, talking, working)
+  - make instructor elements match student (e.g. asking and answering questions vs lecturing and listening)
+- Add %'s to engagement buttons in `COPUS (test)`
+- Make a prompt if an interval was missed and give a chance to add for the last interval
+- Add pause button?
+- Add 'time left in interval' button
+- Maybe flash screen or make some visual cue that time has reset
+- Show the protocol chosen on the observation page
+- Canceling stop and save should go to paused obs page, which can be restarted (it currently sends home)
+- Change low to max 30%
+- Make listening to listening/watching to include observing demonstartion
 
 #### analysis page
-on open page, prompt to open data file
-direct data import dialog box to root\data instead of root
-
-1. A Response Timeline 
-  - It can be kept as it currently is
-2. Three pie charts
-  - one each for engagement, instructor actions, and student actions.
-3. An engagement moving average plot
-  - encode engagement to 1 (low), 2 (medium) or 3 (high)
-  - blanks should be ignored
+- On open page, prompt to open data file
+- Direct data import dialog box to root\data instead of root
+- Fix engagement moving average
+- Add different plots for comparison vs individual
+  - breakout engagement line plot and overlay them
+  - add stacked bar charts for comparison of activities
