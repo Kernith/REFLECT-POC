@@ -7,15 +7,49 @@ from backend.data.collectors.timer_service import TimerService
 from backend.data.exporters.csv_exporter import CSVExporter
 from gui.streamlit.adapters.timer_adapter import StreamlitTimerAdapter
 
-def render_observation_page():
-    """Render the observation page"""
-    # Get observation type (interval, timepoint, etc.)
-    observation_type = st.session_state.get('observation_type', 'interval')
+# Constants
+CATEGORY_PREFIXES = {
+    'student': 'Student',
+    'instructor': 'Instructor',
+    'engagement': 'Engagement'
+}
+DEFAULT_TIMER_INTERVAL = 120  # seconds
+
+def reset_observation_state():
+    """Reset all observation-related state"""
+    collector = st.session_state.observation_collector
+    timer_adapter = st.session_state.timer_adapter
     
-    # Get config from session state
-    config = st.session_state.get('current_config', {})
+    # Stop timer if running
+    if timer_adapter.is_running():
+        timer_adapter.stop()
     
-    # Initialize services
+    # Stop observation and clear data
+    if collector.is_observation_active():
+        collector.stop_observation()
+    collector.clear_responses()
+    
+    # Reset timer
+    timer_adapter.reset()
+    
+    # Clear all button states and toggles
+    st.session_state.button_states = {}
+    
+    # Clear interval tracking
+    st.session_state.last_interval_save = None
+    st.session_state.interval_start_time = None
+    
+    # Clear download state
+    st.session_state.show_download = False
+    st.session_state.csv_data = None
+    
+    # Clear comment field
+    if 'comment_field' in st.session_state:
+        del st.session_state.comment_field
+
+
+def _initialize_services(config):
+    """Initialize all services and state"""
     if 'observation_collector' not in st.session_state:
         st.session_state.observation_collector = ObservationCollector(config)
         st.session_state.timer_service = TimerService()
@@ -24,13 +58,12 @@ def render_observation_page():
         st.session_state.button_states = {}
         st.session_state.last_interval_save = None
         st.session_state.interval_start_time = None
-    
-    collector = st.session_state.observation_collector
-    timer_adapter = st.session_state.timer_adapter
-    
-    # Handle periodic interval saving for interval mode
+
+
+def _handle_periodic_interval_saving(observation_type, timer_adapter, collector, config):
+    """Handle periodic interval saving for interval mode"""
     if observation_type == "interval" and timer_adapter.is_running() and collector.is_observation_active():
-        timer_interval = config.get('timer_interval', 120)  # Default 2 minutes
+        timer_interval = config.get('timer_interval', DEFAULT_TIMER_INTERVAL)
         current_time = time.time()
         
         # Initialize interval tracking
@@ -44,8 +77,10 @@ def render_observation_page():
             save_interval_data(collector, config)
             st.session_state.last_interval_save = current_time
             st.rerun()
-    
-    # student, engagement, and instructor activities
+
+
+def _render_action_sections(config, collector, observation_type):
+    """Render student, engagement, and instructor action sections"""
     student_col, engagement_col, instructor_col = st.columns([3, 2, 3])
 
     with student_col:
@@ -59,175 +94,216 @@ def render_observation_page():
     with instructor_col:
         render_instructor_actions(config, collector, observation_type)
 
-    st.markdown("---")
 
-    # Timer display and controls
+def _render_timer_display(timer_adapter, has_saved_data):
+    """Render timer display"""
+    # Only show timer if there's no saved data
+    if not has_saved_data:
+        # Create a placeholder for the timer that will auto-refresh
+        timer_placeholder = st.empty()
+        
+        # Display the current timer value
+        timer_placeholder.metric("Timer", timer_adapter.format_time())
+        
+        # Auto-refresh only when timer is running
+        if timer_adapter.is_running():
+            st_autorefresh(interval=1000, key="timer_refresh")
+
+
+def _render_finish_button(timer_adapter, collector, observation_type, config):
+    """Render finish observation button and handle finishing logic"""
+    if st.button("Finish Observation", type="primary"):
+        timer_adapter.stop()
+        
+        # Save any remaining button states for interval mode
+        if observation_type == "interval":
+            save_interval_data(collector, config)
+        
+        responses = collector.get_responses()
+        
+        if responses:
+            # Use CSVExporter to create CSV data with metadata
+            csv_exporter = st.session_state.csv_exporter
+            start_time = collector.start_time
+            duration = collector.get_elapsed_time()
+            metadata = csv_exporter.create_metadata(config, start_time, duration)
+            
+            # Create CSV data string
+            csv_data = create_csv_data_with_metadata(responses, metadata)
+            st.session_state.csv_data = csv_data
+            st.session_state.show_download = True
+        else:
+            st.warning("No observations recorded.")
+        
+        # Reset interval tracking
+        st.session_state.last_interval_save = None
+        st.session_state.interval_start_time = None
+        st.rerun()
+
+
+def _render_download_button():
+    """Render download data button"""
+    csv_data = st.session_state.get('csv_data', '')
+    if csv_data:
+        st.download_button(
+            label="Download Data",
+            data=csv_data,
+            file_name=f"observation_{int(time.time())}.csv",
+            mime="text/csv",
+            help="Download your observation data as CSV",
+            type="primary"
+        )
+
+
+def _render_start_button(collector, timer_adapter):
+    """Render start observation button and handle start logic"""
+    if st.button("Start Observation", type="primary"):
+        collector.start_observation()
+        timer_adapter.start()
+        st.session_state.button_states = {}
+        st.session_state.last_interval_save = None
+        st.session_state.interval_start_time = None
+        # Clear any previous download state when starting new observation
+        st.session_state.show_download = False
+        st.session_state.csv_data = None
+        st.rerun()
+
+
+def render_timer_controls(timer_adapter, collector, observation_type, config, has_saved_data):
+    """Render timer display, control buttons, and back button"""
     col1, col2, col3, col4, col5 = st.columns([3, 1, 1, 1, 3])
     
-    # Check if there's saved data
-    has_saved_data = st.session_state.get('show_download', False) and st.session_state.get('csv_data', '')
-    
     with col2:
-        # Only show timer if there's no saved data
-        if not has_saved_data:
-            # Create a placeholder for the timer that will auto-refresh
-            timer_placeholder = st.empty()
-            
-            # Display the current timer value
-            timer_placeholder.metric("Timer", timer_adapter.format_time())
-            
-            # Auto-refresh only when timer is running
-            if timer_adapter.is_running():
-                st_autorefresh(interval=1000, key="timer_refresh")
+        _render_timer_display(timer_adapter, has_saved_data)
     
     with col3:
         timer_running = timer_adapter.is_running()
         
         if timer_running:
             # State 3: Timer is running -> "Finish Observation" button
-            if st.button("Finish Observation", type="primary"):
-                timer_adapter.stop()
-                
-                # Save any remaining button states for interval mode
-                if observation_type == "interval":
-                    save_interval_data(collector, config)
-                
-                responses = collector.get_responses()
-                
-                if responses:
-                    # Use CSVExporter to create CSV data with metadata
-                    csv_exporter = st.session_state.csv_exporter
-                    start_time = collector.start_time
-                    duration = collector.get_elapsed_time()
-                    metadata = csv_exporter.create_metadata(config, start_time, duration)
-                    
-                    # Create CSV data string
-                    csv_data = create_csv_data_with_metadata(responses, metadata)
-                    st.session_state.csv_data = csv_data
-                    st.session_state.show_download = True
-                else:
-                    st.warning("No observations recorded.")
-                
-                # Reset interval tracking
-                st.session_state.last_interval_save = None
-                st.session_state.interval_start_time = None
-                st.rerun()
+            _render_finish_button(timer_adapter, collector, observation_type, config)
         elif has_saved_data:
             # State 2: Timer not running and data is saved -> "Download Data" button
-            csv_data = st.session_state.get('csv_data', '')
-            if csv_data:
-                st.download_button(
-                    label="Download Data",
-                    data=csv_data,
-                    file_name=f"observation_{int(time.time())}.csv",
-                    mime="text/csv",
-                    help="Download your observation data as CSV",
-                    type="primary"
-                )
+            _render_download_button()
         else:
             # State 1: Timer not running and no data saved -> "Start Observation" button
-            if st.button("Start Observation", type="primary"):
-                collector.start_observation()
-                timer_adapter.start()
-                st.session_state.button_states = {}
-                st.session_state.last_interval_save = None
-                st.session_state.interval_start_time = None
-                # Clear any previous download state when starting new observation
-                st.session_state.show_download = False
-                st.session_state.csv_data = None
+            _render_start_button(collector, timer_adapter)
+    
+    with col4:
+        _render_back_button(collector, timer_adapter)
+
+
+def _render_back_button(collector, timer_adapter):
+    """Render back button with confirmation dialog"""
+    # Check if we're showing confirmation dialog
+    show_confirmation = st.session_state.get('show_back_confirmation', False)
+    
+    if show_confirmation:
+        # Show confirmation UI when timer is running
+        st.warning("⚠️ An observation is currently running. Leaving will stop the timer and clear all data.")
+        confirm_col, cancel_col = st.columns(2)
+        
+        with confirm_col:
+            if st.button("Yes, Go Back", type="primary", key="confirm_back"):
+                # Reset confirmation state
+                st.session_state.show_back_confirmation = False
+                
+                # Reset all observation state
+                reset_observation_state()
+                
+                # Navigate to home
+                st.session_state.page = "home"
                 st.rerun()
         
-    with col4:
-        # Check if we're showing confirmation dialog
-        show_confirmation = st.session_state.get('show_back_confirmation', False)
-        
-        if show_confirmation:
-            # Show confirmation UI when timer is running
-            st.warning("⚠️ An observation is currently running. Leaving will stop the timer and clear all data.")
-            confirm_col, cancel_col = st.columns(2)
-            
-            with confirm_col:
-                if st.button("Yes, Go Back", type="primary", key="confirm_back"):
-                    # Reset confirmation state
-                    st.session_state.show_back_confirmation = False
-                    
-                    # Reset all observation state
-                    collector = st.session_state.observation_collector
-                    timer_adapter = st.session_state.timer_adapter
-                    
-                    # Stop timer if running
-                    if timer_adapter.is_running():
-                        timer_adapter.stop()
-                    
-                    # Stop observation and clear data
-                    if collector.is_observation_active():
-                        collector.stop_observation()
-                    collector.clear_responses()
-                    
-                    # Reset timer
-                    timer_adapter.reset()
-                    
-                    # Clear all button states and toggles
-                    st.session_state.button_states = {}
-                    
-                    # Clear interval tracking
-                    st.session_state.last_interval_save = None
-                    st.session_state.interval_start_time = None
-                    
-                    # Clear download state
-                    st.session_state.show_download = False
-                    st.session_state.csv_data = None
-                    
-                    # Clear comment field
-                    if 'comment_field' in st.session_state:
-                        del st.session_state.comment_field
-                    
-                    # Navigate to home
-                    st.session_state.page = "home"
-                    st.rerun()
-            
-            with cancel_col:
-                if st.button("Cancel", key="cancel_back"):
-                    st.session_state.show_back_confirmation = False
-                    st.rerun()
-        else:
-            # Normal "Back to Home" button
-            if st.button("Back to Home"):
-                collector = st.session_state.observation_collector
-                timer_adapter = st.session_state.timer_adapter
+        with cancel_col:
+            if st.button("Cancel", key="cancel_back"):
+                st.session_state.show_back_confirmation = False
+                st.rerun()
+    else:
+        # Normal "Back to Home" button
+        if st.button("Back to Home"):
+            # Check if timer is running - show confirmation if so
+            if timer_adapter.is_running():
+                st.session_state.show_back_confirmation = True
+                st.rerun()
+            else:
+                # Timer not running - proceed directly with reset
+                reset_observation_state()
                 
-                # Check if timer is running - show confirmation if so
-                if timer_adapter.is_running():
-                    st.session_state.show_back_confirmation = True
-                    st.rerun()
-                else:
-                    # Timer not running - proceed directly with reset
-                    # Stop observation and clear data
-                    if collector.is_observation_active():
-                        collector.stop_observation()
-                    collector.clear_responses()
-                    
-                    # Reset timer
-                    timer_adapter.reset()
-                    
-                    # Clear all button states and toggles
-                    st.session_state.button_states = {}
-                    
-                    # Clear interval tracking
-                    st.session_state.last_interval_save = None
-                    st.session_state.interval_start_time = None
-                    
-                    # Clear download state
-                    st.session_state.show_download = False
-                    st.session_state.csv_data = None
-                    
-                    # Clear comment field
-                    if 'comment_field' in st.session_state:
-                        del st.session_state.comment_field
-                    
-                    # Navigate to home
-                    st.session_state.page = "home"
-                    st.rerun()
+                # Navigate to home
+                st.session_state.page = "home"
+                st.rerun()
+
+def render_observation_page():
+    """Render the observation page"""
+    # Get observation type (interval, timepoint, etc.)
+    observation_type = st.session_state.get('observation_type', 'interval')
+    
+    # Get config from session state
+    config = st.session_state.get('current_config', {})
+    
+    # Initialize services
+    _initialize_services(config)
+    
+    collector = st.session_state.observation_collector
+    timer_adapter = st.session_state.timer_adapter
+    
+    # Handle periodic interval saving for interval mode
+    _handle_periodic_interval_saving(observation_type, timer_adapter, collector, config)
+    
+    # Render action sections
+    _render_action_sections(config, collector, observation_type)
+    
+    st.markdown("---")
+
+    # Timer display, controls, and back button
+    has_saved_data = st.session_state.get('show_download', False) and st.session_state.get('csv_data', '')
+    render_timer_controls(timer_adapter, collector, observation_type, config, has_saved_data)
+
+
+def _render_toggle_button(key, label, text):
+    """Render a toggle button for interval mode"""
+    checked = st.session_state.button_states.get(key, False)
+    # Modify button key to include checked state for CSS targeting
+    button_key = f"btn_{key}{'_checked' if checked else ''}"
+    
+    if st.button(label, key=button_key, help=text):
+        # Toggle the state
+        st.session_state.button_states[key] = not checked
+        st.rerun()
+
+
+def _render_click_button(key, label, text, category, collector):
+    """Render a click button for timepoint mode"""
+    if st.button(f"**{label}**", key=f"btn_{key}", help=text):
+        if category == "Engagement":
+            value = get_engagement_value(label)
+        else:
+            value = 1
+        collector.record_response(category, label, value)
+        st.success(f"Recorded: {label}")
+
+
+def _render_button_grid(actions, cols_per_row, category_key, prefix, observation_type, collector):
+    """Generic function to render action buttons for any category"""
+    if not actions:
+        st.info(f"No {category_key.replace('_', ' ')} configured")
+        return
+    
+    cols = st.columns(cols_per_row, gap="small")
+    
+    for i, action in enumerate(actions):
+        label = action['label']
+        text = action.get('text', '')
+        key = f"{prefix}_{label}"
+        col_index = i % cols_per_row
+        
+        with cols[col_index]:
+            if observation_type == "interval":
+                _render_toggle_button(key, label, text)
+            else:
+                category = CATEGORY_PREFIXES.get(prefix, category_key)
+                _render_click_button(key, label, text, category, collector)
 
 
 def save_interval_data(collector, config):
@@ -240,23 +316,22 @@ def save_interval_data(collector, config):
     # Save data for all toggled buttons
     for key, is_toggled in button_states.items():
         if is_toggled:
-            # Parse category and label from key
-            if key.startswith("student_"):
-                category = "Student"
-                label = key.replace("student_", "", 1)
-                value = 1
-            elif key.startswith("instructor_"):
-                category = "Instructor"
-                label = key.replace("instructor_", "", 1)
-                value = 1
-            elif key.startswith("engagement_"):
-                category = "Engagement"
-                label = key.replace("engagement_", "", 1)
-                value = get_engagement_value(label)
-            else:
-                continue
+            # Parse category and label from key using prefixes
+            category = None
+            label = None
+            value = 1
             
-            collector.record_response(category, label, value)
+            for prefix, category_name in CATEGORY_PREFIXES.items():
+                prefix_with_underscore = f"{prefix}_"
+                if key.startswith(prefix_with_underscore):
+                    category = category_name
+                    label = key.replace(prefix_with_underscore, "", 1)
+                    if category == "Engagement":
+                        value = get_engagement_value(label)
+                    break
+            
+            if category and label:
+                collector.record_response(category, label, value)
     
     # Clear button states after saving
     st.session_state.button_states = {}
@@ -265,118 +340,22 @@ def save_interval_data(collector, config):
 def render_student_actions(config, collector, observation_type):
     """Render student actions section"""
     st.markdown("### Student Actions")
-    
     student_actions = config.get('student_actions', [])
-    if not student_actions:
-        st.info("No student actions configured")
-        return
-    
-    # Create 4 columns for button grid with equal spacing
-    cols = st.columns(4, gap = "small")
-
-    for i, action in enumerate(student_actions):
-        label = action['label']
-        text = action['text']
-        key = f"student_{label}"
-        
-        # Use modulo to cycle through columns
-        col_index = i % 4
-        
-        with cols[col_index]:
-            if observation_type == "interval":
-                # Toggle buttons for interval mode
-                checked = st.session_state.button_states.get(key, False)
-                
-                # Modify button key to include checked state for CSS targeting
-                button_key = f"btn_{key}{'_checked' if checked else ''}"
-                
-                if st.button(label, key=button_key, help=text):
-                    # Toggle the state
-                    st.session_state.button_states[key] = not checked
-                    st.rerun()
-            else:
-                # Click buttons for timepoint mode
-                if st.button(f"**{label}**", key=f"btn_{key}", help=text):
-                    collector.record_response("Student", label, 1)
-                    st.success(f"Recorded: {label}")
+    _render_button_grid(student_actions, 4, "student_actions", "student", observation_type, collector)
 
 
 def render_instructor_actions(config, collector, observation_type):
     """Render instructor actions section"""
     st.markdown("### Instructor Actions")
-    
     instructor_actions = config.get('instructor_actions', [])
-    if not instructor_actions:
-        st.info("No instructor actions configured")
-        return
-    
-    # Create 4 columns for button grid
-    cols = st.columns(4, gap = "small")
-    
-    for i, action in enumerate(instructor_actions):
-        label = action['label']
-        text = action['text']
-        key = f"instructor_{label}"
-        
-        # Use modulo to cycle through columns
-        col_index = i % 4
-        
-        with cols[col_index]:
-            if observation_type == "interval":
-                # Toggle buttons for interval mode
-                checked = st.session_state.button_states.get(key, False)
-                
-                # Modify button key to include checked state for CSS targeting
-                button_key = f"btn_{key}{'_checked' if checked else ''}"
-                
-                if st.button(label, key=button_key, help=text):
-                    # Toggle the state
-                    st.session_state.button_states[key] = not checked
-                    st.rerun()
-            else:
-                # Click buttons for timepoint mode
-                if st.button(f"**{label}**", key=f"btn_{key}", help=text):
-                    collector.record_response("Instructor", label, 1)
-                    st.success(f"Recorded: {label}")
+    _render_button_grid(instructor_actions, 4, "instructor_actions", "instructor", observation_type, collector)
 
 
 def render_engagement_section(config, collector, observation_type):
     """Render engagement section"""
     st.markdown("### Student Engagement")
-    
     engagement_levels = config.get('engagement_images', [])
-    if not engagement_levels:
-        st.info("No engagement levels configured")
-        return
-    
-    # Create 3 columns for button grid with equal spacing
-    cols = st.columns(3, gap = "small")
-    
-    for i, level in enumerate(engagement_levels):
-        label = level['label']
-        text = level['text']
-        key = f"engagement_{label}"
-        
-        # Use modulo to cycle through columns
-        col_index = i % 3
-        
-        with cols[col_index]:
-            if observation_type == "interval":
-                # Toggle buttons for interval mode
-                checked = st.session_state.button_states.get(key, False)
-                
-                # Modify button key to include checked state for CSS targeting
-                button_key = f"btn_{key}{'_checked' if checked else ''}"
-                
-                if st.button(label, key=button_key, help=text):
-                    # Toggle the state
-                    st.session_state.button_states[key] = not checked
-                    st.rerun()
-            else:
-                # Click buttons for timepoint mode
-                if st.button(f"**{label}**", key=f"btn_{key}", help=text):
-                    collector.record_response("Engagement", label, get_engagement_value(label))
-                    st.success(f"Recorded: {label}")
+    _render_button_grid(engagement_levels, 3, "engagement_images", "engagement", observation_type, collector)
 
 
 def render_comments_section(collector):
