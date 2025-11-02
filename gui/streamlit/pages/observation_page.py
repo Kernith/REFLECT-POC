@@ -64,20 +64,24 @@ def render_observation_page():
     # Timer display and controls
     col1, col2, col3, col4, col5 = st.columns([3, 1, 1, 1, 3])
     
+    # Check if there's saved data
+    has_saved_data = st.session_state.get('show_download', False) and st.session_state.get('csv_data', '')
+    
     with col2:
-        # Create a placeholder for the timer that will auto-refresh
-        timer_placeholder = st.empty()
-        
-        # Display the current timer value
-        timer_placeholder.metric("Timer", timer_adapter.format_time())
-        
-        # Auto-refresh only when timer is running
-        if timer_adapter.is_running():
-            st_autorefresh(interval=1000, key="timer_refresh")
+        # Only show timer if there's no saved data
+        if not has_saved_data:
+            # Create a placeholder for the timer that will auto-refresh
+            timer_placeholder = st.empty()
+            
+            # Display the current timer value
+            timer_placeholder.metric("Timer", timer_adapter.format_time())
+            
+            # Auto-refresh only when timer is running
+            if timer_adapter.is_running():
+                st_autorefresh(interval=1000, key="timer_refresh")
     
     with col3:
         timer_running = timer_adapter.is_running()
-        has_saved_data = st.session_state.get('show_download', False) and st.session_state.get('csv_data', '')
         
         if timer_running:
             # State 3: Timer is running -> "Finish Observation" button
