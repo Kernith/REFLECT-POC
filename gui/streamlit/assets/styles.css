@@ -4,7 +4,31 @@
     margin-bottom: 2rem;
 }
 
+.stButton > button {
+    border-radius: 10px;
+    border: 2px solid var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.stButton > button:hover {
+    background-color: var(--highlight-color);
+    border: 2px solid var(--highlight-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+
+
 /* Action buttons styling */
+/* Add delay before tooltip appears - doesn't appear to work */
+.stButton button[aria-describedby] ~ *,
+[class*="st-key-btn_student_"] button[aria-describedby] ~ *,
+[class*="st-key-btn_instructor_"] button[aria-describedby] ~ *,
+[class*="st-key-btn_engagement_"] button[aria-describedby] ~ * {
+    transition-delay: 2s;
+}
+
 [class*="st-key-btn_student_"],
 [class*="st-key-btn_instructor_"],
 [class*="st-key-btn_engagement_"] {
@@ -18,28 +42,32 @@
     height: 100% !important;
 }
 
-[class*="st-key-btn_student_"] .stButton button {
-    background-color: var(--student-color, #F46715) !important;
+[class*="st-key-btn_student_"] .stButton button,
+[class*="st-key-btn_instructor_"] .stButton button,
+[class*="st-key-btn_engagement_"] .stButton button {
     color: white !important;
     border: none !important;
     border-radius: 8px !important;
     padding: 0.5em 1em !important;
+}
+
+[class*="st-key-btn_student_"] .stButton button:hover,
+[class*="st-key-btn_instructor_"] .stButton button:hover,
+[class*="st-key-btn_engagement_"] .stButton button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+[class*="st-key-btn_student_"] .stButton button {
+    background-color: var(--student-color, #F46715) !important;
 }
 
 [class*="st-key-btn_instructor_"] .stButton button {
     background-color: var(--instructor-color, #0C8346) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 0.5em 1em !important;
 }
 
 [class*="st-key-btn_engagement_"] .stButton button {
     background-color: var(--engagement-color, #4169E1) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 0.5em 1em !important;
 }
 
 /* Toggled button styles - target buttons with _checked in their key */
@@ -55,19 +83,6 @@
 div.button-toggled-container .stButton button {
     background-color: var(--toggled-color, #FFDF00) !important;
     color: black !important;
-}
-
-.stButton > button {
-    border-radius: 10px;
-    border: 2px solid #1f77b4;
-    transition: all 0.3s ease;
-}
-
-.stButton > button:hover {
-    background-color: #1f77b4;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .metric-container {

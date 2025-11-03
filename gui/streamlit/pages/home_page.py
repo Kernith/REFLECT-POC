@@ -18,9 +18,13 @@ def render_home_page():
     </style>
     """, unsafe_allow_html=True)
     
-    st.markdown("# <span style='color: #007ACC;'>REFLECT</span>", unsafe_allow_html=True)
-    st.markdown("### <span style='color: #007ACC;'>R</span>esearch & <span style='color: #007ACC;'>E</span>valuation <span style='color: #007ACC;'>F</span>ramework for <span style='color: #007ACC;'>L</span>earning, <span style='color: #007ACC;'>E</span>ngagement, <span style='color: #007ACC;'>C</span>ollaboration, and <span style='color: #007ACC;'>T</span>racking", unsafe_allow_html=True)
-    
+    title_col, icon_col = st.columns([3, 1])
+    with title_col:
+        st.markdown("# <span style='color: var(--highlight-color);'>REFLECT</span>", unsafe_allow_html=True)
+        st.markdown("### <span style='color: var(--highlight-color);'>R</span>esearch & <span style='color: var(--highlight-color);'>E</span>valuation <span style='color: var(--highlight-color);'>F</span>ramework for <span style='color: var(--highlight-color);'>L</span>earning, <span style='color: var(--highlight-color);'>E</span>ngagement, <span style='color: var(--highlight-color);'>C</span>ollaboration, and <span style='color: var(--highlight-color);'>T</span>racking", unsafe_allow_html=True)
+    with icon_col:
+        st.image("images/hero_image.png", use_container_width=True)
+        
     st.markdown("---")
     
     # Navigation buttons in a grid layout
@@ -83,7 +87,7 @@ def render_home_page():
             st.session_state.page = "analysis"
             st.rerun()
         
-        if st.button("Settings", use_container_width=True, type="primary"):
+        if st.button("Protocol Information", use_container_width=True, type="primary"):
             st.session_state.page = "settings"
             st.rerun()
 
@@ -91,10 +95,12 @@ def render_home_page():
     
     with right_col:
         # Quick start guide
-        st.markdown("REFLECT Quick Start Guide:")
-        st.markdown("1. **Select Observation Protocol**: Select an observation protocol from the dropdown menu")
-        st.markdown("2. **Start Recording**: Click the appropriate button to begin")
-        st.markdown("3. **Record Behaviors**: Use the interface to log student and instructor actions")
-        st.markdown("4. **Save Data**: Download your observations as CSV files")
-        st.markdown("5. **Analyze Results**: Upload CSV files to view plots and statistics")
+        st.markdown("""
+        REFLECT Quick Start Guide:
+        1. **Select Protocol**: Select an observation protocol from the dropdown menu
+        2. **Start Recording**: Click the appropriate button to begin
+        3. **Record Behaviors**: Use the interface to log student and instructor actions
+        4. **Save Data**: Download your observations as CSV files
+        5. **Analyze Results**: Upload CSV files to view plots and statistics
+        """)
 

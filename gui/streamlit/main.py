@@ -59,12 +59,32 @@ def add_custom_css():
         with open(css_file_path, 'r', encoding='utf-8') as f:
             css_content = f.read()
         
-        # Get colors from session state
-        colors = st.session_state.get('colors', {})
-        
+        # Get config colors from session state and primary color from theme
+        colors = st.session_state.get('colors', {})   
+
+        # Get primary color from config.toml theme
+        primary_color = st.get_option("theme.primaryColor")
+
+        # set highlight color manually
+        highlight_color = "#007ACC"
+        st.markdown(
+            f"""
+            <style>
+                :root {{
+                }}
+                .custom-element {{
+                    border: 2px solid var(--primary-color);
+                }}
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
         # Generate CSS variables
         css_variables = f"""
         :root {{
+            --primary-color: {primary_color};
+            --highlight-color: {highlight_color};
             --student-color: {colors.get('student', '#F46715')};
             --instructor-color: {colors.get('instructor', '#0C8346')};
             --engagement-color: {colors.get('engagement', '#4169E1')};

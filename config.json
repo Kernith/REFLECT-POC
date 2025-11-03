@@ -11,7 +11,7 @@
         {
             "name": "COPUS",
             "description": "Classroom Observation Protocol for Undergraduate Science Courses",
-            "instructions": "instruction text",
+            "instructions": "Brief instructions for using the COPUS (test) observation method:\n\n1. **Observe in 2-Minute Intervals**\n   * Every 2 minutes, record all behaviors you observe during that interval — both for the **instructor** and **students**.\n   * Multiple codes can be checked in the same interval if several behaviors occur.\n\n2. **Use Only Observable Actions**\n   * Focus on *what you can see and hear*, not on interpreting intent or quality.\n\n4. **Continue for the Whole Class Period**\n   * Keep recording every 2 minutes until the end of the class session.\n\n5. **Summarize the Data**\n   * After class, Use the Analysis Page to examine the frequency and trending of each behavior.\n   * Analyze patterns (e.g., proportion of time spent lecturing vs. active learning).",
             "timer_method": "interval",
             "timer_interval": 120,
             "student_actions": [
@@ -329,7 +329,7 @@
             "description": "Classroom Observation Protocol for Undergraduate Science Courses",
             "instructions": "Brief instructions for using the COPUS (test) observation method:\n\n1. **Observe in 2-Minute Intervals**\n   * Every 2 minutes, record all behaviors you observe during that interval — both for the **instructor** and **students**.\n   * Multiple codes can be checked in the same interval if several behaviors occur.\n\n2. **Use Only Observable Actions**\n   * Focus on *what you can see and hear*, not on interpreting intent or quality.\n\n4. **Continue for the Whole Class Period**\n   * Keep recording every 2 minutes until the end of the class session.\n\n5. **Summarize the Data**\n   * After class, Use the Analysis Page to examine the frequency and trending of each behavior.\n   * Analyze patterns (e.g., proportion of time spent lecturing vs. active learning).",
             "timer_method": "interval",
-            "timer_interval": 120,
+            "timer_interval": 15,
             "student_actions": [
                 {
                     "label": "Listening",

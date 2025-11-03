@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import time
-from streamlit_autorefresh import st_autorefresh
 from backend.data.collectors.observation_collector import ObservationCollector
 from backend.data.collectors.timer_service import TimerService
 from backend.data.exporters.csv_exporter import CSVExporter
@@ -96,18 +95,58 @@ def _render_action_sections(config, collector, observation_type):
 
 
 def _render_timer_display(timer_adapter, has_saved_data):
-    """Render timer display"""
+    """Render timer display using client-side JavaScript to avoid constant reruns"""
     # Only show timer if there's no saved data
     if not has_saved_data:
-        # Create a placeholder for the timer that will auto-refresh
-        timer_placeholder = st.empty()
-        
-        # Display the current timer value
-        timer_placeholder.metric("Timer", timer_adapter.format_time())
-        
-        # Auto-refresh only when timer is running
         if timer_adapter.is_running():
-            st_autorefresh(interval=1000, key="timer_refresh")
+            # Get the start time from the timer service
+            timer_service = timer_adapter.timer_service
+            if timer_service.start_time:
+                # Pass start timestamp to JavaScript (convert to milliseconds)
+                start_timestamp = timer_service.start_time * 1000
+                
+                # Get initial elapsed time for immediate display
+                initial_elapsed = timer_service.get_elapsed_time()
+                initial_minutes = int(initial_elapsed // 60)
+                initial_seconds = int(initial_elapsed % 60)
+                initial_time_str = f"{initial_minutes}:{initial_seconds:02d}"
+                
+                # Create client-side timer using HTML/JavaScript
+                timer_html = f"""
+                <div id="timer-container" style="text-align: center;">
+                    <div style="font-size: 14px; color: rgb(128, 128, 128); margin-bottom: 4px;">Timer</div>
+                    <div id="timer-display" style="font-size: 36px; font-weight: bold; color: rgb(31, 119, 180);">
+                        {initial_time_str}
+                    </div>
+                </div>
+                <script>
+                    (function() {{
+                        const startTime = {start_timestamp};
+                        const timerDisplay = document.getElementById('timer-display');
+                        
+                        function updateTimer() {{
+                            const now = Date.now();
+                            const elapsed = Math.floor((now - startTime) / 1000);  // Elapsed in seconds
+                            const minutes = Math.floor(elapsed / 60);
+                            const seconds = elapsed % 60;
+                            timerDisplay.textContent = `${{minutes}}:${{seconds.toString().padStart(2, '0')}}`;
+                        }}
+                        
+                        // Update immediately
+                        updateTimer();
+                        
+                        // Update every second
+                        setInterval(updateTimer, 1000);
+                    }})();
+                </script>
+                """
+                st.markdown(timer_html, unsafe_allow_html=True)
+            else:
+                # Fallback to metric if start_time is not available
+                st.metric("Timer", timer_adapter.format_time())
+        else:
+            # Timer not running - show static 0:00
+            st.metric("Timer", "0:00")
 
 
 def _render_finish_button(timer_adapter, collector, observation_type, config):
@@ -200,7 +239,7 @@ def _render_back_button(collector, timer_adapter):
     
     if show_confirmation:
         # Show confirmation UI when timer is running
-        st.warning("⚠️ An observation is currently running. Leaving will stop the timer and clear all data.")
+        st.warning("An observation is currently running. Leaving will stop the timer and clear all data.")
         confirm_col, cancel_col = st.columns(2)
         
         with confirm_col:
@@ -418,15 +457,20 @@ def render_comments_section(collector):
     """Render comments section"""
     st.markdown("### Comments")
     
-    comment = st.text_area("Add a comment:", key="comment_field", height=100)
+    # Initialize comment field counter if not exists
+    if 'comment_field_counter' not in st.session_state:
+        st.session_state.comment_field_counter = 0
+    
+    # Use counter in key to allow clearing
+    comment_key = f"comment_field_{st.session_state.comment_field_counter}"
+    comment = st.text_area("Add a comment:", key=comment_key, height=100)
     
     if st.button("Save Comment"):
         if comment.strip():
             collector.record_response("Comment", comment.strip())
             st.success("Comment saved!")
-            # Clear the field by deleting the key
-            if 'comment_field' in st.session_state:
-                del st.session_state.comment_field
+            # Increment counter to create new widget instance on rerun
+            st.session_state.comment_field_counter += 1
             st.rerun()
         else:
             st.warning("Please enter a comment before saving.")
