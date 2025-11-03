@@ -5,6 +5,7 @@ from backend.data.collectors.observation_collector import ObservationCollector
 from backend.data.collectors.timer_service import TimerService
 from backend.data.exporters.csv_exporter import CSVExporter
 from gui.streamlit.adapters.timer_adapter import StreamlitTimerAdapter
+import streamlit.components.v1 as components
 
 # Constants
 CATEGORY_PREFIXES = {
@@ -94,7 +95,7 @@ def _render_action_sections(config, collector, observation_type):
         render_instructor_actions(config, collector, observation_type)
 
 
-def _render_timer_display(timer_adapter, has_saved_data):
+def _render_timer_display(timer_adapter, has_saved_data, container=None):
     """Render timer display using client-side JavaScript to avoid constant reruns"""
     # Only show timer if there's no saved data
     if not has_saved_data:
@@ -111,13 +112,13 @@ def _render_timer_display(timer_adapter, has_saved_data):
                 initial_seconds = int(initial_elapsed % 60)
                 initial_time_str = f"{initial_minutes}:{initial_seconds:02d}"
                 
-                # Create client-side timer using HTML/JavaScript
+                # Create client-side timer using JavaScript
                 timer_html = f"""
-                <div id="timer-container" style="text-align: center;">
-                    <div style="font-size: 14px; color: rgb(128, 128, 128); margin-bottom: 4px;">Timer</div>
-                    <div id="timer-display" style="font-size: 36px; font-weight: bold; color: rgb(31, 119, 180);">
-                        {initial_time_str}
-                    </div>
+                <div>
+                    Timer
+                </div>
+                <div id="timer-display" style="font-size: 2rem; font-family: sans-serif;">
+                    {initial_time_str}
                 </div>
                 <script>
                     (function() {{
@@ -140,7 +141,8 @@ def _render_timer_display(timer_adapter, has_saved_data):
                     }})();
                 </script>
                 """
-                st.markdown(timer_html, unsafe_allow_html=True)
+                # Use components.v1.html for persistent execution in iframe
+                components.html(timer_html, height=100)
             else:
                 # Fallback to metric if start_time is not available
                 st.metric("Timer", timer_adapter.format_time())
@@ -213,7 +215,9 @@ def render_timer_controls(timer_adapter, collector, observation_type, config, ha
     col1, col2, col3, col4, col5 = st.columns([3, 1, 1, 1, 3])
     
     with col2:
-        _render_timer_display(timer_adapter, has_saved_data)
+        # Use empty container to maintain stable DOM element
+        timer_container = st.empty()
+        _render_timer_display(timer_adapter, has_saved_data, timer_container)
     
     with col3:
         timer_running = timer_adapter.is_running()
