@@ -22,24 +22,9 @@ class ObservationCollector:
             return
         
         current_time = time.time() - self.start_time
-        
-        # Determine value based on category if not provided
-        if value is None:
-            if category == "Comment":
-                value = response  # For comments, value is the actual text
-            elif category == "Engagement":
-                # Map engagement levels to numeric values
-                engagement_values = {"Low": 1, "Medium": 2, "High": 3}
-                value = engagement_values.get(response, 1)
-            else:  # Student and Instructor categories
-                value = 1
-        
-        # For comments, change response to just "Comment"
-        if category == "Comment":
-            response = "Comment"
-        
+
         self.responses.append((current_time, category, response, value))
-        print(f"Recorded {category}: {response} (value: {value}) at {current_time:.1f}s")
+        print(f"Recorded {category}: {response} (value: {value}) at {current_time:.3f}s")
     
     def get_responses(self) -> List[Tuple]:
         """Get all recorded responses"""
@@ -50,6 +35,10 @@ class ObservationCollector:
         if self.start_time:
             return time.time() - self.start_time
         return 0.0
+    
+    def get_start_time(self) -> float:
+        """Get the start time of the observation"""
+        return self.start_time
     
     def clear_responses(self) -> None:
         """Clear all recorded responses"""
