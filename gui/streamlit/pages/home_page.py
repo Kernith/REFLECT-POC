@@ -14,7 +14,7 @@ def render_home_page():
     /* narrow except on mobile devices */
     @media screen and (min-width: 769px) {
     .stApp {
-        max-width: 50%;
+        max-width: 1000px;
         margin: 0 auto;
     }
     </style>

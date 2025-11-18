@@ -141,3 +141,11 @@ div.button-toggled-container .stButton button {
     background-color: #218838;
     transform: translateY(-1px);
 }
+
+/* Fixed max width for all pages */
+@media screen and (min-width: 769px) {
+    .stApp {
+        max-width: 1200px;  /* Adjust this value to your preference */
+        margin: 0 auto;
+    }
+}
