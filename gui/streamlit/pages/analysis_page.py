@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import io
 from backend.analysis.orchestrator import AnalysisOrchestrator
 from backend.analysis.statistics_calculator import StatisticsCalculator
 from backend.analysis.insights_generator import InsightsGenerator

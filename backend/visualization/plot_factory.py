@@ -9,58 +9,59 @@ class PlotFactory:
     """Factory class for creating matplotlib plots - returns pure Figure objects"""
     
     def create_time_series_plot(self, df, color_manager: ColorManager) -> Figure:
-        """Create time series scatter plot with moving average for engagement"""
-        fig = Figure(figsize=(10, 6))
+        """Create horizontal interval plot showing time ranges for each category/response"""
+        fig = Figure(figsize=(12, 8))
         ax = fig.add_subplot(111)
         
-        # Create scatter plot
-        for category in df["category"].unique():
-            category_data = df[df["category"] == category]
-            x_values = category_data["time_s"]
-            y_values = category_data["response"]
-            
-            ax.scatter(x_values, y_values, 
-                      c=color_manager.get_category_color(category), 
-                      label=category, 
-                      alpha=0.7, 
-                      s=50)
+        # Get unique combinations of category and response
+        df_sorted = df.sort_values('time_s').copy()
         
-        # Add 3-point moving average for engagement data
-        engagement_data = df[df["category"] == "Engagement"]
-        if not engagement_data.empty and len(engagement_data) >= 3:
-            # Sort by time to ensure proper order and convert value to numeric
-            engagement_sorted = engagement_data.sort_values('time_s')
-            engagement_sorted = engagement_sorted.copy()
-            engagement_sorted['value'] = pd.to_numeric(engagement_sorted['value'], errors='coerce')
-
-            moving_avg_values = []
-            moving_avg_times = []
-            
-            # First point - just use the first value
-            moving_avg_values.append(engagement_sorted.iloc[0]['value'])
-            moving_avg_times.append(engagement_sorted.iloc[0]['time_s'])
-            
-            # Second point - average of first two points
-            avg_value = engagement_sorted.iloc[0:2]['value'].mean()
-            moving_avg_values.append(avg_value)
-            moving_avg_times.append(engagement_sorted.iloc[1]['time_s'])
+        # Create y-positions for each unique category-response combination
+        unique_combinations = df_sorted.groupby(['category', 'response']).size().reset_index()
+        unique_combinations['y_pos'] = range(len(unique_combinations))
         
-            # Remaining points - 3 point moving average
-            for i in range(2, len(engagement_sorted)):
-                window_data = engagement_sorted.iloc[i-2:i+1]
-                avg_value = window_data['value'].mean()
-                moving_avg_values.append(avg_value)
-                moving_avg_times.append(engagement_sorted.iloc[i]['time_s'])
-            
-            # Plot the moving average line
-            ax.plot(moving_avg_times, moving_avg_values,
-                  color=color_manager.get_category_color('Engagement'), linewidth=2,
-                  label='Engagement Moving Average',
-                  linestyle='--')
+        # Create a mapping for quick lookup
+        combo_to_y = {}
+        for idx, row in unique_combinations.iterrows():
+            combo_to_y[(row['category'], row['response'])] = row['y_pos']
         
+        # Plot horizontal intervals
+        # For each category-response combination, find time intervals
+        for (category, response), y_pos in combo_to_y.items():
+            combo_data = df_sorted[(df_sorted['category'] == category) & 
+                                  (df_sorted['response'] == response)]
+            
+            if len(combo_data) > 0:
+                # Get color for this category
+                color = color_manager.get_category_color(category)
+                
+                # For each occurrence, create a small interval bar
+                # You can adjust the width of these bars as needed
+                for _, row in combo_data.iterrows():
+                    time_point = row['time_s']
+                    # Create a small interval around each point (e.g., ±5 seconds)
+                    # Or use actual intervals if you have start/end times
+                    interval_width = 120  # Adjust this based on your needs
+                    ax.barh(y_pos, interval_width, left=time_point - interval_width/2,
+                           color=color, alpha=1, height=0.6,
+                           label=category if y_pos == 0 else "")
+        
+        # Set y-axis labels
+        y_labels = [f"{row['category']}: {row['response']}" 
+                   for _, row in unique_combinations.iterrows()]
+        ax.set_yticks(range(len(unique_combinations)))
+        ax.set_yticklabels(y_labels)
+        
+        # Set labels and formatting
         ax.set_xlabel("Time (seconds)")
-        ax.set_ylabel("Activity")
-        ax.grid(True, alpha=0.3)
+        ax.set_ylabel("Category / Response")
+        ax.set_title("Activity Timeline (Horizontal Interval Plot)")
+        ax.grid(True, alpha=0.3, axis='x')
+        
+        # Add legend (one entry per category)
+        #handles, labels = ax.get_legend_handles_labels()
+        #by_label = dict(zip(labels, handles))
+        #ax.legend(by_label.values(), by_label.keys(), loc='best')
         
         return fig
 
