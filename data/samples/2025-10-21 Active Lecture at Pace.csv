@@ -5,127 +5,73 @@
 
 time_s,category,response,value
 6,Comment,Comment,I entered lecture late
-120,Student,"Group
-Worksheet",1
-120,Instructor,"Moving
-Through
-Class",1
+120,Student,Group Worksheet,1
+120,Instructor,Moving Through Class,1
 120,Engagement,High,3
-240,Student,"Group
-Worksheet",1
-240,Instructor,"Moving
-Through
-Class",1
+240,Student,Group Worksheet,1
+240,Instructor,Moving Through Class,1
 240,Engagement,High,3
-360,Student,"Group
-Worksheet",1
-360,Instructor,"Moving
-Through
-Class",1
+360,Student,Group Worksheet,1
+360,Instructor,Moving Through Class,1
 360,Engagement,High,3
-480,Student,"Group
-Worksheet",1
-480,Instructor,"Moving
-Through
-Class",1
+480,Student,Group Worksheet,1
+480,Instructor,Moving Through Class,1
 480,Engagement,High,3
-600,Student,"Group
-Worksheet",1
-600,Instructor,"Moving
-Through
-Class",1
+600,Student,Group Worksheet,1
+600,Instructor,Moving Through Class,1
 600,Engagement,High,3
-720,Student,"Group
-Worksheet",1
+720,Student,Group Worksheet,1
 720,Engagement,Medium,2
-720,Instructor,"Moving
-Through
-Class",1
+720,Instructor,Moving Through Class,1
 720,Instructor,1 on 1,1
-840,Student,"Group
-Worksheet",1
+840,Student,Group Worksheet,1
 840,Engagement,Medium,2
-840,Instructor,"Moving
-Through
-Class",1
+840,Instructor,Moving Through Class,1
 840,Instructor,1 on 1,1
-960,Student,"Group
-Worksheet",1
+960,Student,Group Worksheet,1
 960,Engagement,High,3
-960,Instructor,"Moving
-Through
-Class",1
-1080,Student,"Group
-Worksheet",1
+960,Instructor,Moving Through Class,1
+1080,Student,Group Worksheet,1
 1080,Engagement,Medium,2
-1080,Instructor,"Moving
-Through
-Class",1
-1200,Student,"Group
-Worksheet",1
-1200,Instructor,"Answering
-Question",1
-1200,Student,"Asking
-Question",1
+1080,Instructor,Moving Through Class,1
+1200,Student,Group Worksheet,1
+1200,Instructor,Answering Question,1
+1200,Student,Asking Question,1
 1200,Engagement,Medium,2
-1320,Student,"Group
-Worksheet",1
-1320,Instructor,"Answering
-Question",1
-1440,Student,"Group
-Worksheet",1
-1440,Instructor,"Answering
-Question",1
+1320,Student,Group Worksheet,1
+1320,Instructor,Answering Question,1
+1440,Student,Group Worksheet,1
+1440,Instructor,Answering Question,1
 1440,Engagement,High,3
-1440,Instructor,"Answering
-Question",1
-1560,Student,"Group
-Worksheet",1
-1560,Instructor,"Answering
-Question",1
+1440,Instructor,Answering Question,1
+1560,Student,Group Worksheet,1
+1560,Instructor,Answering Question,1
 1560,Engagement,High,3
-1680,Student,"Group
-Worksheet",1
-1680,Instructor,"Answering
-Question",1
+1680,Student,Group Worksheet,1
+1680,Instructor,Answering Question,1
 1680,Engagement,Medium,2
-1800,Instructor,"Moving
-Through
-Class",1
-1800,Student,"Group
-Worksheet",1
+1800,Instructor,Moving Through Class,1
+1800,Student,Group Worksheet,1
 1800,Instructor,1 on 1,1
 1800,Engagement,High,3
-1920,Instructor,"Moving
-Through
-Class",1
+1920,Instructor,Moving Through Class,1
 1920,Engagement,High,3
-1920,Student,"Group
-Worksheet",1
-2040,Student,"Group
-Worksheet",1
+1920,Student,Group Worksheet,1
+2040,Student,Group Worksheet,1
 2040,Engagement,Medium,2
-2040,Instructor,"Moving
-Through
-Class",1
-2160,Instructor,"Moving
-Through
-Class",1
-2160,Student,"Group
-Worksheet",1
+2040,Instructor,Moving Through Class,1
+2160,Instructor,Moving Through Class,1
+2160,Student,Group Worksheet,1
 2160,Engagement,Low,1
-2280,Student,"Student
-Presentation",1
+2280,Student,Student Presentation,1
 2280,Engagement,Medium,2
 2280,Instructor,Following up,1
-2400,Student,"Student
-Presentation",1
+2400,Student,Student Presentation,1
 2400,Student,Listening,1
 2400,Instructor,Lecturing,1
 2400,Instructor,Following up,1
 2400,Engagement,High,3
-2520,Student,"Student
-Presentation",1
+2520,Student,Student Presentation,1
 2520,Instructor,Following up,1
 2520,Instructor,Lecturing,1
 2520,Student,Listening,1
@@ -134,7 +80,6 @@ Presentation",1
 2640,Instructor,Lecturing,1
 2640,Instructor,Demonstrating,1
 2640,Engagement,Medium,2
-2760,Student,"Student
-Presentation",1
+2760,Student,Student Presentation,1
 2760,Engagement,Medium,2
 2760,Instructor,Following up,1
