@@ -133,7 +133,7 @@ def render_analysis_page():
     # Display visual summaries
     if 'current_data' in st.session_state and 'current_data_filename' in st.session_state:
         df = st.session_state.current_data
-        timeseries_col, pie_col = st.columns([1, 1])
+        timeseries_col, pie_col = st.columns([3, 2])
         with timeseries_col:
             display_time_series_plot(df, plot_adapter, orchestrator)
         with pie_col:
@@ -179,6 +179,18 @@ def render_analysis_page():
     if 'comparison_data' in st.session_state and 'comparison_data_filename' in st.session_state:
         df = st.session_state.comparison_data
         display_statistics_table(df, orchestrator)
+
+
+def display_time_series_plot(df, plot_adapter, orchestrator):
+    """Display time series plot"""
+    st.subheader("Observation Timeline")
+    plot_adapter.display_time_series_plot(df, orchestrator.get_color_manager())
+
+
+def display_distribution_plot(df, plot_adapter, orchestrator):
+    """Display distribution plot"""
+    st.subheader("Activity Distribution")
+    plot_adapter.display_category_distribution_plot(df, orchestrator.get_color_manager())
 
 
 def display_summary_statistics(df, orchestrator):
@@ -207,16 +219,13 @@ def display_summary_statistics(df, orchestrator):
             st.markdown(f"- **{key}:** {value}")
 
 
-def display_time_series_plot(df, plot_adapter, orchestrator):
-    """Display time series plot"""
-    st.subheader("Observation Timeline")
-    plot_adapter.display_time_series_plot(df, orchestrator.get_color_manager())
-
-
-def display_distribution_plot(df, plot_adapter, orchestrator):
-    """Display distribution plot"""
-    st.subheader("Activity Distribution")
-    plot_adapter.display_category_distribution_plot(df, orchestrator.get_color_manager())
+def display_insights(df, orchestrator):
+    """Display insights"""
+    st.subheader("Timeline Analysis & Insights")
+    insights = orchestrator.generate_insights(df)
+    
+    for insight in insights:
+        st.markdown(f"• {insight}")
 
 
 def display_statistics_table(df, orchestrator):
@@ -227,15 +236,6 @@ def display_statistics_table(df, orchestrator):
     # Convert to DataFrame for better display
     stats_df = pd.DataFrame(stats)
     st.dataframe(stats_df, width='stretch')
-
-
-def display_insights(df, orchestrator):
-    """Display insights"""
-    st.subheader("Timeline Analysis & Insights")
-    insights = orchestrator.generate_insights(df)
-    
-    for insight in insights:
-        st.markdown(f"• {insight}")
 
 
 def display_export_options(df, pdf_exporter, orchestrator, filename):
