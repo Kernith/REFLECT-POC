@@ -16,52 +16,87 @@ class PlotFactory:
         # Get unique combinations of category and response
         df_sorted = df.sort_values('time_s').copy()
         
-        # Create y-positions for each unique category-response combination
+        # Group by category first, then by response within each category
         unique_combinations = df_sorted.groupby(['category', 'response']).size().reset_index()
-        unique_combinations['y_pos'] = range(len(unique_combinations))
+        unique_combinations = unique_combinations.sort_values(['category', 'response'])
         
-        # Create a mapping for quick lookup
+        # Create y-positions with spacing between categories
+        y_pos_counter = 0
+        category_positions = {}  # Track where each category starts/ends
         combo_to_y = {}
-        for idx, row in unique_combinations.iterrows():
-            combo_to_y[(row['category'], row['response'])] = row['y_pos']
+        
+        for category in unique_combinations['category'].unique():
+            category_data = unique_combinations[unique_combinations['category'] == category]
+            category_start = y_pos_counter
+            
+            for _, row in category_data.iterrows():
+                combo_to_y[(row['category'], row['response'])] = y_pos_counter
+                y_pos_counter += 1
+            
+            category_end = y_pos_counter - 1
+            category_positions[category] = (category_start, category_end)
         
         # Plot horizontal intervals
-        # For each category-response combination, find time intervals
         for (category, response), y_pos in combo_to_y.items():
             combo_data = df_sorted[(df_sorted['category'] == category) & 
-                                  (df_sorted['response'] == response)]
+                                (df_sorted['response'] == response)]
             
             if len(combo_data) > 0:
                 # Get color for this category
                 color = color_manager.get_category_color(category)
                 
                 # For each occurrence, create a small interval bar
-                # You can adjust the width of these bars as needed
                 for _, row in combo_data.iterrows():
                     time_point = row['time_s'] / 60  # Convert seconds to minutes
-                    # Create a small interval around each point (e.g., ±2 minutes)
-                    # Or use actual intervals if you have start/end times
-                    interval_width = 2  # Width in minutes (was 120 seconds)
+                    interval_width = 2  # Width in minutes
                     ax.barh(y_pos, interval_width, left=time_point - interval_width/2,
-                           color=color, alpha=1, height=0.6,
-                           label=category if y_pos == 0 else "")
+                        color=color, alpha=1, height=0.6,
+                        label=category if y_pos == 0 else "")
         
-        # Set y-axis labels
-        y_labels = [f"{row['category']}: {row['response']}" 
-                   for _, row in unique_combinations.iterrows()]
-        ax.set_yticks(range(len(unique_combinations)))
+        # Add horizontal dividers between categories
+        for category, (start, end) in category_positions.items():
+            if category != list(category_positions.keys())[-1]:  # Not the last category
+                divider_y = end + 0.5
+                ax.axhline(y=divider_y, color='gray', linestyle='--', linewidth=1, alpha=0.5)
+        
+        # Set main y-axis labels - show only response for each row
+        y_labels = []
+        y_ticks = []
+        for category in unique_combinations['category'].unique():
+            category_data = unique_combinations[unique_combinations['category'] == category]
+            for _, row in category_data.iterrows():
+                y_pos = combo_to_y[(row['category'], row['response'])]
+                y_ticks.append(y_pos)
+                y_labels.append(row['response'])  # Only show response, not category
+        
+        ax.set_yticks(y_ticks)
         ax.set_yticklabels(y_labels)
+        
+        # Create secondary y-axis for category labels
+        sec = ax.secondary_yaxis(location=1)  # location=0 means left side
+        
+        # Calculate middle position for each category group
+        category_ticks = []
+        category_labels = []
+        for category, (start, end) in category_positions.items():
+            mid_y = (start + end) / 2
+            category_ticks.append(mid_y)
+            if category.lower() == 'comment':
+                category_labels.append('')
+            else:
+                category_labels.append(f'{category}')
+        
+        sec.set_yticks(category_ticks)
+        sec.set_yticklabels(category_labels)
+        sec.tick_params('y', length=0, rotation=-90)
+        for label in sec.get_yticklabels(): # tick_params doesn't support 'va' directly
+            label.set_verticalalignment('center')
         
         # Set labels and formatting
         ax.set_xlabel("Time (minutes)")
-        ax.set_ylabel("Category / Response")
-        ax.set_title("Activity Timeline (Horizontal Interval Plot)")
+        ax.set_ylabel("Response")
+        ax.set_title("Activity Timeline (Grouped by Category)")
         ax.grid(True, alpha=0.3, axis='x')
-        
-        # Add legend (one entry per category)
-        #handles, labels = ax.get_legend_handles_labels()
-        #by_label = dict(zip(labels, handles))
-        #ax.legend(by_label.values(), by_label.keys(), loc='best')
         
         return fig
 
