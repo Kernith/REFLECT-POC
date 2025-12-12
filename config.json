@@ -17,66 +17,79 @@
             "student_actions": [
                 {
                     "label": "L",
+                    "name": "Listening",
                     "text": "Listening to instructor / taking notes",
                     "image": "images/student_listening.png"
                 },
                 {
                     "label": "Ind",
+                    "name": "Individual Problem Solving",
                     "text": "Individual thinking / problem solving (when explicitly prompted)",
                     "image": "images/student_talking.png"
                 },
                 {
                     "label": "AnQ-S",
+                    "name": "Answering a Question",
                     "text": "Answering instructor's question",
                     "image": "images/student_discussing.png"
                 },
                 {
                     "label": "SQ",
+                    "name": "Asking a question",
                     "text": "Asking a question",
                     "image": "images/student_question.png"
                 },
                 {
                     "label": "Prd",
+                    "name": "Making a Prediction",
                     "text": "Making a prediction about an outcome of a demo or experiment",
                     "image": "images/student_working.png"
                 },
                 {
                     "label": "CG",
+                    "name": "Group Clicker Question",
                     "text": "Discussing clicker question (CQ) in groups of 2 or more students",
                     "image": "images/student_group.png"
                 },
                 {
                     "label": "WG",
+                    "name": "Group Worksheet",
                     "text": "Working on worksheet in groups",
                     "image": "images/student_workgroup.png"
                 },
                 {
                     "label": "OG",
+                    "name": "Other Group Work",
                     "text": "Other group activities (e.g., responding to instructor question)",
                     "image": "images/student_othergroup.png"
                 },
                 {
                     "label": "WC",
+                    "name": "Whole-Class Discussion",
                     "text": "Engaged in whole class discussion (offering explanations, opinions, etc.)",
                     "image": "images/student_waiting.png"
                 },
                 {
                     "label": "SP",
+                    "name": "Student Presentation",
                     "text": "Giving a student presentation",
                     "image": "images/student_speaking.png"
                 },
                 {
                     "label": "T/Q",
+                    "name": "Test/Quiz",
                     "text": "Taking a test or quiz",
                     "image": "images/student_tech.png"
                 },
                 {
                     "label": "W-S",
+                    "name": "Waiting",
                     "text": "Waiting (e.g., instructor late or fixing AV problems)",
                     "image": "images/student_waiting.png"
                 },
                 {
                     "label": "O-S",
+                    "name": "Other",
                     "text": "Other student behavior (see comments)",
                     "image": "images/student_other.png"
                 }
@@ -84,66 +97,79 @@
             "instructor_actions": [
                 {
                     "label": "Lec",
+                    "name": "Lecturing",
                     "text": "Lecturing (presenting content, deriving results, problem solutions, etc.)",
                     "image": "images/instructor_lecture.png"
                 },
                 {
                     "label": "RtW",
+                    "name": "Writing on board",
                     "text": "Real-time writing on board, document, or projector",
                     "image": "images/instructor_demo.png"
                 },
                 {
                     "label": "D/V",
+                    "name": "Demostration/Video",
                     "text": "Showing or conducting a demo, experiment, simulation, video, or animation",
                     "image": "images/instructor_questions.png"
                 },
                 {
                     "label": "PQ",
+                    "name": "Posing Question",
                     "text": "Posing non-rhetorical, non-clicker question",
                     "image": "images/instructor_circulating.png"
                 },
                 {
                     "label": "CQ",
+                    "name": "Asking Clicker Question",
                     "text": "Asking a clicker question (mark entire time clicker question used)",
                     "image": "images/instructor_assistance.png"
                 },
                 {
                     "label": "AnQ-I",
+                    "name": "Answering Questions",
                     "text": "Listening to and answering student questions with entire class listening",
                     "image": "images/instructor_answering.png"
                 },
                 {
                     "label": "Fup",
+                    "name": "Following up",
                     "text": "Following up on clicker question or activity to entire class",
                     "image": "images/instructor_followup.png"
                 },
                 {
                     "label": "Si",
+                    "name": "'Stretch it'",
                     "text": "'Stretch it' activity",
                     "image": "images/instructor_silent.png"
                 },
                 {
                     "label": "MG",
+                    "name": "Moving Through Class",
                     "text": "Moving through class, guiding work during active learning tasks",
                     "image": "images/instructor_managing.png"
                 },
                 {
                     "label": "1o1",
+                    "name": "1 on 1",
                     "text": "One-on-one extended discussion with student(s)",
                     "image": "images/instructor_oneonone.png"
                 },
                 {
                     "label": "Adm",
+                    "name": "Administration",
                     "text": "Administration (assigning homework, returning tests, etc.)",
                     "image": "images/instructor_admin.png"
                 },
                 {
                     "label": "W-I",
+                    "name": "Waiting",
                     "text": "Instructor waiting when could be interacting/observing students",
                     "image": "images/instructor_waiting.png"
                 },
                 {
                     "label": "O-I",
+                    "name": "Other",
                     "text": "Other instructor behavior (see comments)",
                     "image": "images/instructor_other.png"
                 }
@@ -151,16 +177,19 @@
             "engagement_images": [
                 {
                     "label": "High",
+                    "name": "High",
                     "text": "Large fraction of students (80+%) clearly engaged in class activity or listening to instructor.",
                     "image": "images/engagement_high.png"
                 },
                 {
                     "label": "Medium",
+                    "name": "Medium",
                     "text": "Substantial fractions both clearly engaged and clearly not engaged.",
                     "image": "images/engagement_medium.png"
                 },
                 {
                     "label": "Low",
+                    "name": "Low",
                     "text": "Small fraction (10-20%) obviously engaged.",
                     "image": "images/engagement_low.png"
                 }
@@ -175,66 +204,79 @@
             "student_actions": [
                 {
                     "label": "L",
+                    "name": "Listening",
                     "text": "Listening to instructor / taking notes",
                     "image": "images/student_listening.png"
                 },
                 {
                     "label": "Ind",
+                    "name": "Individual Problem Solving",
                     "text": "Individual thinking / problem solving (when explicitly prompted)",
                     "image": "images/student_talking.png"
                 },
                 {
                     "label": "AnQ-S",
+                    "name": "Answering a Question",
                     "text": "Answering instructor's question",
                     "image": "images/student_discussing.png"
                 },
                 {
                     "label": "SQ",
+                    "name": "Asking a question",
                     "text": "Asking a question",
                     "image": "images/student_question.png"
                 },
                 {
                     "label": "Prd",
+                    "name": "Making a Prediction",
                     "text": "Making a prediction about an outcome of a demo or experiment",
                     "image": "images/student_working.png"
                 },
                 {
                     "label": "CG",
+                    "name": "Group Clicker Question",
                     "text": "Discussing clicker question (CQ) in groups of 2 or more students",
                     "image": "images/student_group.png"
                 },
                 {
                     "label": "WG",
+                    "name": "Group Worksheet",
                     "text": "Working on worksheet in groups",
                     "image": "images/student_workgroup.png"
                 },
                 {
                     "label": "OG",
+                    "name": "Other Group Work",
                     "text": "Other group activities (e.g., responding to instructor question)",
                     "image": "images/student_othergroup.png"
                 },
                 {
                     "label": "WC",
+                    "name": "Whole-Class Discussion",
                     "text": "Engaged in whole class discussion (offering explanations, opinions, etc.)",
                     "image": "images/student_waiting.png"
                 },
                 {
                     "label": "SP",
+                    "name": "Student Presentation",
                     "text": "Giving a student presentation",
                     "image": "images/student_speaking.png"
                 },
                 {
                     "label": "T/Q",
+                    "name": "Test/Quiz",
                     "text": "Taking a test or quiz",
                     "image": "images/student_tech.png"
                 },
                 {
                     "label": "W-S",
+                    "name": "Waiting",
                     "text": "Waiting (e.g., instructor late or fixing AV problems)",
                     "image": "images/student_waiting.png"
                 },
                 {
                     "label": "O-S",
+                    "name": "Other",
                     "text": "Other student behavior (see comments)",
                     "image": "images/student_other.png"
                 }
@@ -242,66 +284,79 @@
             "instructor_actions": [
                 {
                     "label": "Lec",
+                    "name": "Lecturing",
                     "text": "Lecturing (presenting content, deriving results, problem solutions, etc.)",
                     "image": "images/instructor_lecture.png"
                 },
                 {
                     "label": "RtW",
+                    "name": "Writing on board",
                     "text": "Real-time writing on board, document, or projector",
                     "image": "images/instructor_demo.png"
                 },
                 {
                     "label": "D/V",
+                    "name": "Demostration/Video",
                     "text": "Showing or conducting a demo, experiment, simulation, video, or animation",
                     "image": "images/instructor_questions.png"
                 },
                 {
                     "label": "PQ",
+                    "name": "Posing Question",
                     "text": "Posing non-rhetorical, non-clicker question",
                     "image": "images/instructor_circulating.png"
                 },
                 {
                     "label": "CQ",
+                    "name": "Asking Clicker Question",
                     "text": "Asking a clicker question (mark entire time clicker question used)",
                     "image": "images/instructor_assistance.png"
                 },
                 {
                     "label": "AnQ-I",
+                    "name": "Answering Questions",
                     "text": "Listening to and answering student questions with entire class listening",
                     "image": "images/instructor_answering.png"
                 },
                 {
                     "label": "Fup",
+                    "name": "Following up",
                     "text": "Following up on clicker question or activity to entire class",
                     "image": "images/instructor_followup.png"
                 },
                 {
                     "label": "Si",
+                    "name": "'Stretch it'",
                     "text": "'Stretch it' activity",
                     "image": "images/instructor_silent.png"
                 },
                 {
                     "label": "MG",
+                    "name": "Moving Through Class",
                     "text": "Moving through class, guiding work during active learning tasks",
                     "image": "images/instructor_managing.png"
                 },
                 {
                     "label": "1o1",
+                    "name": "1 on 1",
                     "text": "One-on-one extended discussion with student(s)",
                     "image": "images/instructor_oneonone.png"
                 },
                 {
                     "label": "Adm",
+                    "name": "Administration",
                     "text": "Administration (assigning homework, returning tests, etc.)",
                     "image": "images/instructor_admin.png"
                 },
                 {
                     "label": "W-I",
+                    "name": "Waiting",
                     "text": "Instructor waiting when could be interacting/observing students",
                     "image": "images/instructor_waiting.png"
                 },
                 {
                     "label": "O-I",
+                    "name": "Other",
                     "text": "Other instructor behavior (see comments)",
                     "image": "images/instructor_other.png"
                 }
@@ -309,16 +364,19 @@
             "engagement_images": [
                 {
                     "label": "High",
+                    "name": "High",
                     "text": "Large fraction of students (80+%) clearly engaged in class activity or listening to instructor.",
                     "image": "images/engagement_high.png"
                 },
                 {
                     "label": "Medium",
+                    "name": "Medium",
                     "text": "Substantial fractions both clearly engaged and clearly not engaged.",
                     "image": "images/engagement_medium.png"
                 },
                 {
                     "label": "Low",
+                    "name": "Low",
                     "text": "Small fraction (10-20%) obviously engaged.",
                     "image": "images/engagement_low.png"
                 }
@@ -333,61 +391,73 @@
             "student_actions": [
                 {
                     "label": "Listening",
+                    "name": "Listening",
                     "text": "Listening to instructor / taking notes",
                     "image": "images/student_listening.png"
                 },
                 {
                     "label": "Answering\nQuestion",
+                    "name": "Answering Question",
                     "text": "Answering instructor's question",
                     "image": "images/student_discussing.png"
                 },
                 {
                     "label": "Asking\nQuestion",
+                    "name": "Asking Question",
                     "text": "Asking a question",
                     "image": "images/student_question.png"
                 },
                 {
                     "label": "Waiting",
+                    "name": "Waiting",
                     "text": "Waiting (e.g., instructor late or fixing AV problems)",
                     "image": "images/student_waiting.png"
                 },
                 {
                     "label": "Predicting\nOutcome",
+                    "name": "Predicting Outcome",
                     "text": "Making a prediction about an outcome of a demo or experiment",
                     "image": "images/student_working.png"
                 },
                 {
                     "label": "Discussing\nQuestion",
+                    "name": "Discussing Question",
                     "text": "Discussing clicker question (CQ) in groups of 2 or more students",
                     "image": "images/student_group.png"
                 },
                 {
                     "label": "Class\nDiscussion",
+                    "name": "Class Discussion",
                     "text": "Engaged in whole class discussion (offering explanations, opinions, etc.)",
                     "image": "images/student_waiting.png"
                 },
                 {
                     "label": "Student\nPresentation",
+                    "name": "Student Presentation",
                     "text": "Giving a student presentation",
                     "image": "images/student_speaking.png"
                 },
                 {
                     "label": "Thinking/Problem\nSolving",
+                    "name": "Thinking/Problem Solving",
                     "text": "Individual thinking / problem solving (when explicitly prompted)",
                     "image": "images/student_talking.png"
                 },
                 {
                     "label": "Group\nWorksheet",
+                    "name": "Group Worksheet",
                     "text": "Working on worksheet in groups",
                     "image": "images/student_workgroup.png"
                 },
                 {
                     "label": "Group\nActivities",
+                    "name": "Group Activities",
                     "text": "Other group activities (e.g., responding to instructor question)",
                     "image": "images/student_othergroup.png"
                 },
                 {
                     "label": "Test/Quiz",
+                    "name": "Test/Quiz",
                     "text": "Taking a test or quiz",
                     "image": "images/student_tech.png"
                 }
@@ -395,61 +465,73 @@
             "instructor_actions": [
                 {
                     "label": "Lecturing",
+                    "name": "Lecturing",
                     "text": "Lecturing (presenting content, deriving results, problem solutions, etc.)",
                     "image": "images/instructor_lecture.png"
                 },
                 {
                     "label": "Real-time\nWriting",
+                    "name": "Real-time Writing",
                     "text": "Real-time writing on board, document, or projector",
                     "image": "images/instructor_demo.png"
                 },
                 {
                     "label": "Demonstrating",
+                    "name": "Demonstrating",
                     "text": "Showing or conducting a demo, experiment, simulation, video, or animation",
                     "image": "images/instructor_questions.png"
                 },
                 {
                     "label": "Answering\nQuestion",
+                    "name": "Answering Question",
                     "text": "Listening to and answering student questions with entire class listening",
                     "image": "images/instructor_answering.png"
                 },
                 {
                     "label": "Posing\nQuestion",
+                    "name": "Posing Question",
                     "text": "Posing non-rhetorical, non-clicker question",
                     "image": "images/instructor_circulating.png"
                 },
                 {
                     "label": "Asking\nClicker\nQuestion",
+                    "name": "Asking Clicker Question",
                     "text": "Asking a clicker question (mark entire time clicker question used)",
                     "image": "images/instructor_assistance.png"
                 },
                 {
                     "label": "Following up",
+                    "name": "Following up",
                     "text": "Following up on clicker question or activity to entire class",
                     "image": "images/instructor_followup.png"
                 },
                 {
                     "label": "Stretch it",
+                    "name": "Stretch it",
                     "text": "'Stretch it' activity",
                     "image": "images/instructor_silent.png"
                 },
                 {
                     "label": "Moving\nThrough\nClass",
+                    "name": "Moving Through Class",
                     "text": "Moving through class, guiding work during active learning tasks",
                     "image": "images/instructor_managing.png"
                 },
                 {
                     "label": "1 on 1",
+                    "name": "1 on 1",
                     "text": "One-on-one extended discussion with student(s)",
                     "image": "images/instructor_oneonone.png"
                 },
                 {
                     "label": "Administration",
+                    "name": "Administration",
                     "text": "Administration (assigning homework, returning tests, etc.)",
                     "image": "images/instructor_admin.png"
                 },
                 {
                     "label": "Waiting",
+                    "name": "Waiting",
                     "text": "Instructor waiting when could be interacting/observing students",
                     "image": "images/instructor_waiting.png"
                 }
@@ -457,16 +539,19 @@
             "engagement_images": [
                 {
                     "label": "High",
+                    "name": "High",
                     "text": "Most students (70-100%) clearly engaged in class activity or listening to instructor.",
                     "image": "images/engagement_high.png"
                 },
                 {
                     "label": "Medium",
+                    "name": "Medium",
                     "text": "Substantial fractions (40-60%) both clearly engaged and clearly not engaged.",
                     "image": "images/engagement_medium.png"
                 },
                 {
                     "label": "Low",
+                    "name": "Low",
                     "text": "Few students (0-30%) obviously engaged.",
                     "image": "images/engagement_low.png"
                 }
