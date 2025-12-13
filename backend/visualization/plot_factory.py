@@ -176,7 +176,7 @@ class PlotFactory:
         """Create four pie charts in a 2x2 grid: instructor, student, engagement, and interval capture rate"""
         combine_threshold = 0.06499999999999999  # Activities with proportion < this will be grouped
         
-        fig = Figure(figsize=(9, 9))
+        fig = Figure(figsize=(8, 8))
         # 2x2 grid layout: top row (221, 222), bottom row (223, 224)
         ax1 = fig.add_subplot(221)  # Instructor (top left)
         ax2 = fig.add_subplot(222)  # Student (top right)
