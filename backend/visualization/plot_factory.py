@@ -139,9 +139,9 @@ class PlotFactory:
         
         return fig
 
-    def _group_small_categories(self, counts, threshold=0.05):
+    def _group_small_categories(self, counts, threshold=0.06499999999999999):
         """
-        Group categories with individual proportions < threshold into 'Other' category.
+        Group categories with individual proportions <= threshold into 'Other' category.
         Only groups if there are at least 2 categories to group.
         Returns grouped counts as a Series.
         """
@@ -154,7 +154,7 @@ class PlotFactory:
         # Find all categories with proportion < threshold
         categories_to_group = []
         for category, proportion in proportions.items():
-            if proportion < threshold:
+            if proportion <= threshold:
                 categories_to_group.append(category)
         
         # Only group if we have at least 2 categories
@@ -174,9 +174,9 @@ class PlotFactory:
 
     def create_category_distribution_plot(self, df, color_manager: ColorManager) -> Figure:
         """Create four pie charts in a 2x2 grid: instructor, student, engagement, and interval capture rate"""
-        combine_threshold = 0.05  # Activities with proportion < 5% will be grouped
+        combine_threshold = 0.06499999999999999  # Activities with proportion < this will be grouped
         
-        fig = Figure(figsize=(8, 8))
+        fig = Figure(figsize=(9, 9))
         # 2x2 grid layout: top row (221, 222), bottom row (223, 224)
         ax1 = fig.add_subplot(221)  # Instructor (top left)
         ax2 = fig.add_subplot(222)  # Student (top right)

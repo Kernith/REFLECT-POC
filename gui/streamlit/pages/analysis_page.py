@@ -141,7 +141,7 @@ def render_analysis_page():
 
     if 'comparison_data' in st.session_state and 'comparison_data_filename' in st.session_state:
         df = st.session_state.comparison_data
-        timeseries_col, pie_col = st.columns([1, 1])
+        timeseries_col, pie_col = st.columns([3, 2])
         with timeseries_col:
             display_time_series_plot(df, plot_adapter, orchestrator)
         with pie_col:
