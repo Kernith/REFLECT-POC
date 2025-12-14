@@ -19,8 +19,14 @@ class PlotFactory:
         
         # Group by category first, then by response within each category
         df_sorted = df.sort_values('time_s').copy()
-        unique_combinations = df_sorted.groupby(['category', 'response']).size().reset_index()
-        unique_combinations = unique_combinations.sort_values(['category', 'response'])
+
+        # Replace strings in value column with 1, then convert to numeric
+        df_sorted['value'] = pd.to_numeric(df_sorted['value'], errors='coerce').fillna(1)
+
+        unique_combinations = df_sorted.groupby(['category', 'response']).agg({
+            'value': 'mean'  # Aggregate value (you can use 'max', 'min', or 'first' instead)
+        }).reset_index()
+        unique_combinations = unique_combinations.sort_values(['category', 'value', 'response'], ascending=[True, True, False])
         
         # Create y-positions with spacing between categories
         y_pos_counter = 0
