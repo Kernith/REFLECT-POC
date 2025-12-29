@@ -179,58 +179,19 @@ class PlotFactory:
             return counts
 
     def create_category_distribution_plot(self, df, color_manager: ColorManager) -> Figure:
-        """Create four pie charts in a 2x2 grid: instructor, student, engagement, and interval capture rate"""
+        """Create three pie charts in a single row: instructor, student, and engagement"""
         combine_threshold = 0.06499999999999999  # Activities with proportion < this will be grouped
         
-        fig = Figure(figsize=(8, 8))
-        # 2x2 grid layout: top row (221, 222), bottom row (223, 224)
-        ax1 = fig.add_subplot(221)  # Instructor (top left)
-        ax2 = fig.add_subplot(222)  # Student (top right)
-        ax3 = fig.add_subplot(223)  # Engagement (bottom left)
-        ax4 = fig.add_subplot(224)  # Interval Capture (bottom right)
+        fig = Figure(figsize=(12, 4))
+        # Single row layout with 3 plots
+        ax1 = fig.add_subplot(131)  # Instructor (left)
+        ax2 = fig.add_subplot(132)  # Student (middle)
+        ax3 = fig.add_subplot(133)  # Engagement (right)
         
         # Filter data for each category
         engagement_data = df[df['category'] == 'Engagement']
         instructor_data = df[df['category'] == 'Instructor']
         student_data = df[df['category'] == 'Student']
-        
-        # Calculate interval capture statistics
-        interval_duration = 120  # Default 2 minutes in seconds
-        # Try to get interval from header info if available
-        header_info = df.attrs.get('header_info', {})
-        if 'timer_interval' in header_info:
-            try:
-                interval_duration = int(header_info['timer_interval'])
-            except (ValueError, TypeError):
-                pass
-        
-        # Calculate expected and captured intervals
-        if len(df) > 0:
-            min_time = df['time_s'].min()
-            max_time = df['time_s'].max()
-            time_span = max_time - min_time
-            
-            # Calculate expected number of intervals
-            expected_intervals = int(np.ceil(time_span / interval_duration)) if time_span > 0 else 0
-            
-            # Calculate unique intervals that have data
-            # Round each time to the nearest interval start
-            interval_indices = ((df['time_s'] - min_time) / interval_duration).astype(int)
-            captured_intervals = interval_indices.nunique()
-            
-            # Calculate missed intervals
-            missed_intervals = max(0, expected_intervals - captured_intervals)
-            
-            # Calculate percentages
-            if expected_intervals > 0:
-                pct_captured = (captured_intervals / expected_intervals) * 100
-                pct_missed = (missed_intervals / expected_intervals) * 100
-            else:
-                pct_captured = 0
-                pct_missed = 0
-        else:
-            pct_captured = 0
-            pct_missed = 0
         
         # Create pie chart for Instructor (top left)
         if not instructor_data.empty:
@@ -262,7 +223,7 @@ class PlotFactory:
             ax2.text(0.5, 0.5, 'No Student Data', ha='center', va='center', transform=ax2.transAxes)
             ax2.set_title('Student Activities')
         
-        # Create pie chart for Engagement (bottom left)
+        # Create pie chart for Engagement (right)
         if not engagement_data.empty:
             engagement_counts = engagement_data['response'].value_counts()
             grouped_engagement = self._group_small_categories(engagement_counts, combine_threshold)
@@ -276,16 +237,5 @@ class PlotFactory:
         else:
             ax3.text(0.5, 0.5, 'No Engagement Data', ha='center', va='center', transform=ax3.transAxes)
             ax3.set_title('Engagement')
-        
-        # Create pie chart for Interval Capture (bottom right)
-        capture_data = [pct_captured, pct_missed]
-        capture_labels = ['% Intervals Captured', '% Intervals Missed']
-        # Generate grey color spectrum using the same method as other charts
-        base_grey = color_manager.colors.get('comments', '#808080')
-        capture_colors = color_manager.generate_color_spectrum(base_grey, 2)
-        ax4.pie(capture_data, labels=capture_labels, 
-                autopct='%1.1f%%', startangle=90,
-                colors=capture_colors, pctdistance=0.75)
-        ax4.set_title('Interval Capture Rate')
         
         return fig
