@@ -28,20 +28,50 @@ class PlotFactory:
         }).reset_index()
         unique_combinations = unique_combinations.sort_values(['category', 'value', 'response'], ascending=[True, True, False])
         
-        # Create y-positions with spacing between categories
-        y_pos_counter = 0
+        # Define custom category order for y-axis
+        category_order = ['Instructor', 'Student', 'Engagement', 'Comment']
+        # Create a mapping for sorting (case-insensitive, handle both singular and plural)
+        category_order_map = {
+            'instructor': 0,
+            'student': 1, 
+            'engagement': 2,
+            'comment': 3,
+            'comments': 3  # Handle plural form
+        }
+        
+        # Get unique categories from data
+        unique_categories = unique_combinations['category'].unique()
+        
+        # Debug: print what we have
+        print(f"Unique categories found: {list(unique_categories)}")
+        print(f"Category order map: {category_order_map}")
+        
+        # Sort by custom order (case-insensitive)
+        # Use tuple (order, name) so that items with same order maintain consistent ordering
+        unique_categories_sorted = sorted(unique_categories, 
+                                         key=lambda x: (category_order_map.get(x.lower(), 999), x.lower()))
+        
+        # Debug: print category order to verify
+        print(f"Category order in plot (after sorting): {unique_categories_sorted}")
+        
+        # First, count total number of category-response combinations to determine y positions
+        total_combinations = len(unique_combinations)
+        
+        # Create y-positions with spacing between categories (assign from top to bottom)
+        y_pos_counter = total_combinations - 1  # Start from top (highest y value)
         category_positions = {}  # Track where each category starts/ends
         combo_to_y = {}
         
-        for category in unique_combinations['category'].unique():
+        for category in unique_categories_sorted:
             category_data = unique_combinations[unique_combinations['category'] == category]
-            category_start = y_pos_counter
+            category_end = y_pos_counter  # End is at higher y value (top)
             
+            # Assign positions from top to bottom within each category
             for _, row in category_data.iterrows():
                 combo_to_y[(row['category'], row['response'])] = y_pos_counter
-                y_pos_counter += 1
+                y_pos_counter -= 1
             
-            category_end = y_pos_counter - 1
+            category_start = y_pos_counter + 1  # Start is at lower y value (bottom)
             category_positions[category] = (category_start, category_end)
         
         # Plot horizontal intervals
@@ -62,20 +92,27 @@ class PlotFactory:
                         label=category if y_pos == 0 else "")
         
         # Add horizontal dividers between categories
-        for category, (start, end) in category_positions.items():
-            if category != list(category_positions.keys())[-1]:  # Not the last category
-                divider_y = end + 0.5
+        for i, category in enumerate(unique_categories_sorted):
+            if i < len(unique_categories_sorted) - 1:  # Not the last category
+                start, end = category_positions[category]
+                # Place divider at the bottom of current category (between this and next category)
+                # Since start is the lowest y value (bottom), place divider just below it
+                divider_y = start - 0.5
                 ax.axhline(y=divider_y, color='gray', linestyle='--', linewidth=1, alpha=0.5)
         
         # Set main y-axis labels to response
-        y_labels = []
-        y_ticks = []
-        for category in unique_combinations['category'].unique():
+        # Build list of (y_pos, label) tuples, then sort by y_pos to match assigned positions
+        y_pos_label_pairs = []
+        for category in unique_categories_sorted:
             category_data = unique_combinations[unique_combinations['category'] == category]
             for _, row in category_data.iterrows():
                 y_pos = combo_to_y[(row['category'], row['response'])]
-                y_ticks.append(y_pos)
-                y_labels.append(row['response'])  # Only show response, not category
+                y_pos_label_pairs.append((y_pos, row['response']))
+        
+        # Sort by y position (ascending: lowest y at bottom, highest y at top)
+        y_pos_label_pairs.sort(key=lambda x: x[0])
+        y_ticks = [pair[0] for pair in y_pos_label_pairs]
+        y_labels = [pair[1] for pair in y_pos_label_pairs]
         
         ax.set_yticks(y_ticks)
         ax.set_yticklabels(y_labels)
@@ -86,7 +123,8 @@ class PlotFactory:
         # Calculate middle position for each category group
         category_ticks = []
         category_labels = []
-        for category, (start, end) in category_positions.items():
+        for category in unique_categories_sorted:
+            start, end = category_positions[category]
             mid_y = (start + end) / 2
             category_ticks.append(mid_y)
             if category.lower() == 'comment':
@@ -187,6 +225,9 @@ class PlotFactory:
         ax1 = fig.add_subplot(131)  # Instructor (left)
         ax2 = fig.add_subplot(132)  # Student (middle)
         ax3 = fig.add_subplot(133)  # Engagement (right)
+        
+        # Add more spacing between pie charts
+        fig.subplots_adjust(wspace=1.4)
         
         # Filter data for each category
         engagement_data = df[df['category'] == 'Engagement']
